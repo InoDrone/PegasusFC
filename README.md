@@ -1,4 +1,4 @@
-InoDroneCentor
+InoDrone Pegasus
 ==============
 
-InoDrone Centor FC embedded software for STM32
+InoDrone Pegasus FC embedded software for STM32
