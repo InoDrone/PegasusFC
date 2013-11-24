@@ -9,7 +9,7 @@
 #define PEGASUS_STM32
 #endif
 
-#include <Pegasus.h>
+#include <pegasus/core/include/Pegasus.h>
 #include "Config.h"
 
 #define LED_YELLOW 	Port2Pin('C', 3)
@@ -19,16 +19,20 @@
 #define LED_1	Port2Pin('G', 13)
 #define LED_2   Port2Pin('G', 14)
 
+
+pegasus::Gpio led(pegasus::gpio::Port::G, pegasus::gpio::Pin::PIN13);
+
 void setup()
 {
 
-  initPlatform();
+  //initPlatform();
 
-  os::io.pinMode(LED_1, OUTPUT);
-  os::io.write(LED_1, HIGH);
+    led.mode(pegasus::gpio::Mode::OUTPUT);
+    led.high();
+
 
   //os::rcout.add(Port2Pin('D', 12), 50);
-  Pegasus::core::mix.add(Port2Pin('D', 12),0,50);
+  //Pegasus::core::mix.add(Port2Pin('D', 12),0,50);
 
 
 	//sys.timer->attach(loop1Khz, 1000); // 1Khz 0.001ms
@@ -38,21 +42,23 @@ void setup()
 
 void loop() {
 
-        os::io.write(LED_1, HIGH);
-        os::timer.delayMillis(100);
-        os::io.write(LED_1, LOW);
-        os::timer.delayMillis(100);
+        led.high();
+        pegasus::coreTimer.delayMillis(100);
+        led.low();
+        pegasus::coreTimer.delayMillis(100);
 
-        for (int i=900;i<2500;i+=50) {
+
+        /*for (int i=900;i<2500;i+=50) {
             os::rcout.write(Port2Pin('D', 12), i);
             os::timer.delayMillis(100);
-        }
+        }*/
+
 }
 
 
 int main(void)
 {
-	os::core.init();
+	//os::core.init();
 
 	setup();
 

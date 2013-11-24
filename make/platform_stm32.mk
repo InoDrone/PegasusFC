@@ -11,28 +11,17 @@ STFLASH   = $(STLINKDIR)/st-flash
 
 STM_DIR=$(PROJECT_ROOT)/make/stm32
 
-# ADD STM32 StdPeriphDriver
-SRCS = $(PROJECTLIBSRCS) 
-SRCS += $(PROJECTSRCS)
-#SRCS += $(SRCROOT)/stm32/stm32f4xx_it.c
-SRCS += $(SRCROOT)/stm32/system_stm32f4xx.c
-SRCS += $(SRCROOT)/stm32/syscalls.c
-#SRCS += $(STM_DIR)/lib/startup_stm32f429_439xx.s
-
-INC_DIRS  = $(STM_DIR)/lib
-INC_DIRS += $(STM_DIR)/lib/inc
-INC_DIRS += $(STM_DIR)/lib/inc/core
-INC_DIRS += $(STM_DIR)/lib/inc/peripherals
-INC_DIRS += $(SRCROOT)/stm32
-INC_DIRS += $(SRCROOT)
+INCLUDES += $(STM_DIR)/lib
+INCLUDES += $(STM_DIR)/lib/inc
+INCLUDES += $(STM_DIR)/lib/inc/core
+INCLUDES += $(STM_DIR)/lib/inc/peripherals
 
 CXX 	= $(TOOLPATH)/arm-none-eabi-g++
 CC  	= $(TOOLPATH)/arm-none-eabi-gcc
 OBJCOPY	= $(TOOLPATH)/arm-none-eabi-objcopy
 AR		= $(TOOLPATH)/arm-none-eabi-ar
 
-INCLUDE  = $(addprefix -I,$(INC_DIRS))
-INCLUDE += $(PROJECTLIBINCLUDES)
+INCLUDES  := $(addprefix -I,$(INCLUDES))
 
 DEFINES  = -DUSE_STDPERIPH_DRIVER -DHSE_VALUE=8000000
 DEFINES += -DF_CPU=$(F_CPU) -DPEGASUS_STM32 -D$(MCU)
@@ -43,7 +32,7 @@ CFLAGS += -nostdlib -ffunction-sections -fdata-sections --specs=rdimon.specs
 CFLAGS += -Wl,--gc-sections  $(DEFINES)
 CFLAGS += -L$(STM_DIR)/lib -lstm32f4 -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group
 
-CXXFLAGS = 
+CXXFLAGS = -std=gnu++11
 #-fno-rtti -nostdlib -Wall -mfloat-abi=hard -mfpu=fpv4-sp-d16 $(DEFINES)
 
 #CFLAGS += -fno-exceptions -fsigned-char
@@ -57,8 +46,6 @@ PROJECTELF               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.elf
 PROJECTBIN               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.bin
 PROJECTHEX               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.hex
 PROJECTMAP               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.map
-OBJS := $(subst $(SRCROOT),$(BUILDROOT),$(SRCS))
-OBJS := $(addsuffix .o,$(basename $(OBJS)))
 
 vpath %.a $(STM_DIR)/lib
 
@@ -78,7 +65,7 @@ lib:
 #   $(CXX) $(DEFS) $(INCLUDE) $(CFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lm
 
 $(PROJECTELF): $(OBJS)
-	$(CXX) $(DEFINES) $(INCLUDE) $(LDFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lm
+	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lm
 
 $(PROJECTHEX): $(PROJECTELF)
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
@@ -89,9 +76,9 @@ $(PROJECTBIN): $(PROJECTELF)
 $(BUILDROOT)/%.o: $(SRCROOT)/%.cpp
 	@echo %% $(subst $(BUILDROOT)/,,$@)
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(INCLUDE) $(CFLAGS) $(CXXFLAGS) $^ -o $@
+	$(CXX) -c $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $^ -o $@
 	
 $(BUILDROOT)/%.o: $(SRCROOT)/%.c
 	@echo %% $(subst $(BUILDROOT)/,,$@)
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(INCLUDE) $(CFLAGS) $(CXXFLAGS) $^ -o $@
+	$(CXX) -c $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $^ -o $@

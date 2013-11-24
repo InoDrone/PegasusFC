@@ -23,7 +23,7 @@
 
 
 #if PEGASUS_VERSION == PEGASUS_VB
-    #include "platform/PegasusSTM32VB.h"
+    #include "pegasus/core/include/platform/PegasusSTM32VB.h"
 #else
     #error This version is not implemented
 #endif
