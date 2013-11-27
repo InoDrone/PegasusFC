@@ -5,6 +5,7 @@
  extern "C" {
 #endif
 
+     void* __dso_handle;
 	int __errno;
 
 	int _close(int file) {

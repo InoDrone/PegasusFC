@@ -50,11 +50,6 @@ namespace pegasus {
                     while (true) {}
                   }
 
-                  void PendService(void) {
-
-                    while (true) {}
-                  }
-
                   void DebugMon(void) {
                     while (true) {}
                   }

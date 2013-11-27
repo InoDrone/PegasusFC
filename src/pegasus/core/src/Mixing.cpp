@@ -14,46 +14,49 @@ namespace pegasus
 
         Mixing::Mixing(){}
 
-        void Mixing::init(uint8_t frame)
+        void Mixing::init(uint8_t frame, pegasus::hal::PortMapping* ports)
         {
-            frameType = frame;
+            _mFrameType = frame;
+            _mPortMapping = ports;
         }
 
-        void Mixing::add(uint8_t pin, uint8_t index, uint8_t speed)
+        void Mixing::add(uint8_t index)
         {
-            if (index >= MIXING_MAX_OUTPUT) {
+            if (index >= PWM_OUT_LENGTH) {
                 pegasus::core::trace.error("[MIXING] Add output overflow, index >= MIXING_MAX_OUTPUT");
                 return;
             }
 
-            outPin[index] = pin;
-            //pegasus::rcout.add(pin, speed);
-
-            //os::rcout.write(pin, VAL_PWM_MAX);
+            _mRcout[index] = _mPortMapping->getRCOutput(index);
+            if (_mRcout[index] == 0) {
+                pegasus::core::trace.error("[MIXING] No RCOUTPUT found");
+                return;
+            }
+            _mRcout[index]->write(VAL_PWM_MAX);
         }
 
         void Mixing::update(uint16_t thrust, float roll, float pitch, float yaw)
         {
-            switch (frameType) {
+            switch (_mFrameType) {
                 case FRAME_QUAD:
-                    values[0] = MIX(0 ,-1, -1); // Front
-                    values[1] = MIX(-1, 0, +1); // Right
-                    values[2] = MIX(0 ,+1, +1); // Rear
-                    values[3] = MIX(+1, 0, -1); // Left
+                    _mValues[MOTOR1] = MIX(0 ,-1, -1); // Front
+                    _mValues[MOTOR2] = MIX(-1, 0, +1); // Right
+                    _mValues[MOTOR3] = MIX(0 ,+1, +1); // Rear
+                    _mValues[MOTOR4] = MIX(+1, 0, -1); // Left
 
-                    motorCount = 4;
+                    _mMotorCount = 4;
                     break;
                 case FRAME_X4:
-                    values[0] = MIX(+1,-1,-1); // Front Left
-                    values[1] = MIX(-1,-1,+1); // Front Right
-                    values[2] = MIX(+1,+1,+1); // Rear Left
-                    values[3] = MIX(-1,+1,-1); // Rear Right
+                    _mValues[MOTOR1] = MIX(+1,-1,-1); // Front Left
+                    _mValues[MOTOR2] = MIX(-1,-1,+1); // Front Right
+                    _mValues[MOTOR3] = MIX(+1,+1,+1); // Rear Left
+                    _mValues[MOTOR4] = MIX(-1,+1,-1); // Rear Right
 
-                    motorCount = 4;
+                    _mMotorCount = 4;
                     break;
             }
 
-            for( uint8_t i=0;i<motorCount;i++) {
+            for( uint8_t i=0;i<_mMotorCount;i++) {
                 //os::rcout.write(outPin[i], values[i]);
             }
         }

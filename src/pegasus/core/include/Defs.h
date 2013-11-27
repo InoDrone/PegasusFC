@@ -8,10 +8,20 @@
 #ifndef DEFS_H_
 #define DEFS_H_
 
+#include <stdint.h>
 
 namespace pegasus {
+
   typedef void(*Func)(void);
+
+  namespace core {
+      typedef void (*Thread_t)(void);
+      typedef void (*Thread1_t)(void*);
+      typedef void (*ThreadEntry_t) (void*, void*);
+  }
 }
+
+#define INLINE inline __attribute__((always_inline))
 
 
 /****************************************************
@@ -54,6 +64,22 @@ namespace pegasus {
 #define FRAME_OCTO      6
 #define FRAME_OSPREY    7
 
+
+enum PWM_OUT {
+    MOTOR1,
+    MOTOR2,
+    MOTOR3,
+    MOTOR4,
+    MOTOR5,
+    MOTOR6,
+    MOTOR7,
+    MOTOR8,
+    SERVO1,
+    SERVO2,
+    SERVO3,
+    SERVO4,
+    PWM_OUT_LENGTH
+};
 
 
 #endif /* DEFS_H_ */

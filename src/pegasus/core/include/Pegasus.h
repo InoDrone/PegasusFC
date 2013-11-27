@@ -11,8 +11,7 @@
 #include <stdint.h>
 
 #include "pegasus/core/include/Defs.h"
-#include "pegasus/core/include/Trace.h"
-#include "pegasus/core/include/Mixing.h"
+
 
 extern "C" {
 	void setup();
@@ -25,10 +24,6 @@ extern "C" {
 #elif defined PEGASUS_STM32
 #include "pegasus/hal/stm32f4/include/Hal.h"
 #endif
-
-namespace pegasus {
-    extern pegasus::CoreTimer coreTimer;
-}
 
 
 #endif /* PEGASUS_H_ */

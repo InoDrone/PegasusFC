@@ -34,9 +34,12 @@ namespace pegasus {
                     static void init();
                     static void reset();
 
+                    static void yield();
+
                     static void initDataEndBss();
                     static void callStaticConstructors();
-                    static void initSystem();
+
+                    static void initThread();
             };
         }
     }

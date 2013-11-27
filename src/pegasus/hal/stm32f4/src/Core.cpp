@@ -5,8 +5,11 @@
  *      Author: alienx
  */
 
+#include "pegasus/core/include/MainThread.h"
 #include "pegasus/hal/stm32f4/include/Core.h"
+#include "pegasus/hal/stm32f4/include/Processor.h"
 #include "pegasus/hal/stm32f4/include/CoreTimer.h"
+#include "pegasus/hal/stm32f4/include/ThreadContext.h"
 
 extern "C" {
   void Reset_Handler(void) {};
@@ -18,12 +21,48 @@ namespace pegasus {
 
       void Core::init()
       {
-          // Not implemented Yet
+          SystemInit();
+          SystemCoreClock = F_CPU;//((HSE_VALUE / PLL_M) * PLL_N) / PLL_P;
+
+          // Timer Prescaler Enable
+          RCC->DCKCFGR |= RCC_DCKCFGR_TIMPRE;
+
+          // Enable threading
+          ThreadContext::_sStack = pegasus::core::mainThread.getContext().getPStack();
+          (*((volatile unsigned long *) 0xE000ED20)) |= (PENDSV_INTERRUPT_PRIORITY << 0x10);
       }
 
       void Core::reset()
       {
           NVIC_SystemReset();
+      }
+
+      void Core::yield()
+      {
+          (*((volatile unsigned long *) 0xE000ED04)) = (1 << 0x1C);
+      }
+
+      void Core::initThread() {
+
+          /*Processor::disableInterrupts();
+          asm volatile(
+                  "ldr r1, %[stack]             \n"
+                  "ldr r0, [r1]                 \n"
+                  "                             \n"
+                  //"ldmia r0!, {r4-r11}          \n"
+                  "add r0, r0, #32              \n"
+                  "msr psp, r0                  \n"
+                  :
+                  : [stack] "m"(ThreadContext::_sStack)
+                  :
+          );
+
+          Processor::setCONTROL(0x02);
+
+          //yield();
+          //Processor::toMSP();
+          Processor::enableInterrupts();*/
+
       }
 
       void Core::initDataEndBss()
@@ -53,24 +92,52 @@ namespace pegasus {
           }
       }
 
-      void Core::initSystem()
-      {
-          CoreTimer::init();
-      }
-
       namespace InterruptHandler {
         void Reset(void)
         {
+
             Core::initDataEndBss();
             Core::callStaticConstructors();
 
-            SystemInit();
-            SystemCoreClock = F_CPU;//((HSE_VALUE / PLL_M) * PLL_N) / PLL_P;
+            pegasus::core::mainThread.start();
 
-            Core::initSystem();
-            //SystemCoreClockUpdate();
+
+            /* Set main thread */
+            uint32_t* stack = pegasus::core::mainThread.getTopStackAligned();
+            __set_PSP((uint32_t) stack);
+            __ISB();
+
+            __set_CONTROL( __get_CONTROL() | 0x02 );
+            __ISB();
+
+          /*  Processor::disableInterrupts();
+            asm volatile(
+                    "ldr r1, %[stack]             \n"
+                    "ldr r0, [r1]                 \n"
+                    "                             \n"
+                    //"ldmia r0!, {r4-r11}          \n"
+                    "add r0, r0, #32              \n"
+                    "msr psp, r0                  \n"
+                    :
+                    : [stack] "m"(ThreadContext::_sStack)
+                    :
+            );*/
+
+
+
+
+
+            //yield();
+            //Processor::toMSP();
+            Processor::enableInterrupts();
+
+
+            //__get_MSP();
+            //__ISB();
 
             main();
+
+            while(1) {}
         }
       }
     }

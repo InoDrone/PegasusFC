@@ -31,27 +31,32 @@ namespace pegasus {
         };
     }
 
-  class GpioBase {
-      public:
-          GpioBase(const gpio::portNumber_t portNumber, const gpio::bitNumber_t bitNumber) :
-              _mBitMask(1 << bitNumber),
-              _mPortNumber(portNumber),
-              _mBitNumber(bitNumber)
-          {
+    namespace hal {
 
+          namespace gpio = pegasus::gpio;
+
+          class GpioBase {
+              public:
+                  GpioBase(const gpio::portNumber_t portNumber, const gpio::bitNumber_t bitNumber) :
+                      _mBitMask(1 << bitNumber),
+                      _mPortNumber(portNumber),
+                      _mBitNumber(bitNumber)
+                  {
+
+                  };
+
+                  virtual void mode(const pegasus::gpio::Mode mode) = 0;
+                  virtual void low(void) = 0;
+                  virtual void high(void) = 0;
+                  virtual void toggle(void) = 0;
+                  virtual bool read(void) = 0;
+
+              protected:
+                  const uint16_t _mBitMask;
+                  const pegasus::gpio::portNumber_t _mPortNumber;
+                  const pegasus::gpio::bitNumber_t _mBitNumber;
           };
-
-          virtual void mode(const pegasus::gpio::Mode mode) = 0;
-          virtual void low(void) = 0;
-          virtual void high(void) = 0;
-          virtual void toggle(void) = 0;
-          virtual bool read(void) = 0;
-
-      protected:
-          const uint16_t _mBitMask;
-          const pegasus::gpio::portNumber_t _mPortNumber;
-          const pegasus::gpio::bitNumber_t _mBitNumber;
-  };
+    }
 
 }
 

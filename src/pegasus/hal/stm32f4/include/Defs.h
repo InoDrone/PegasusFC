@@ -23,9 +23,24 @@
 #define CYCLES_PER_MICROSECOND (F_CPU/1000000)
 #define SYSTICK_RELOAD_VAL     ((F_CPU/1000) - 1) // for 1ms
 
-#define INLINE inline __attribute__((always_inline))
 typedef uint32_t u32;
 
+/**
+ * Interrupt priority
+ */
+#define SYSTICK_INTERRUPT_PRIORITY 0xFF
+#define PENDSV_INTERRUPT_PRIORITY  0xFF
 
+//TODO move to HAL
+#define STACK_SIZE 1024
+
+namespace pegasus {
+    namespace hal {
+        struct Stack_t {
+                uint32_t *top;
+                uint32_t  stack[STACK_SIZE / sizeof(uint32_t)];
+        };
+    }
+}
 
 #endif /* STM32DEFS_H_ */

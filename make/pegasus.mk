@@ -54,8 +54,8 @@ PEGASUSHALOBJS := $(addsuffix .o,$(basename $(PEGASUSHALOBJS)))
 ###################################################################
 #	SOURCES / INCLUDE
 ###################################################################
-SRCS = ${FCSRCS} ${PEGASUSSRCS} ${PEGASUSHALSRCS}
-OBJS = ${FCSOBJS} ${PEGASUSOBJS} ${PEGASUSHALOBJS}
+SRCS = ${PEGASUSSRCS} ${PEGASUSHALSRCS} ${FCSRCS}
+OBJS = ${PEGASUSOBJS} ${PEGASUSHALOBJS} ${FCSOBJS}
 INCLUDES = ${FCINC}
 
 ifeq ($(PEGASUS_PLATFORM),PIC32)
