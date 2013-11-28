@@ -13,7 +13,7 @@ namespace pegasus {
         void IdleThread::run()
         {
             while(1) {
-                //TODO idle action
+                asm volatile("nop");
             }
         }
 

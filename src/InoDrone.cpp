@@ -23,71 +23,25 @@
 #define LED_2   Port2Pin('G', 14)
 
 
-pegasus::hal::Gpio led(pegasus::gpio::Port::G, pegasus::gpio::Pin::PIN13);
-pegasus::hal::Timer timer4(TIM4);
+//pegasus::hal::Gpio led(pegasus::gpio::Port::G, pegasus::gpio::Pin::PIN13);
+/*pegasus::hal::Timer timer4(TIM4);
 pegasus::hal::TimerChannel T4C0(&timer4, 0);
 pegasus::hal::Gpio D12(pegasus::gpio::Port::D, pegasus::gpio::Pin::PIN12);
-pegasus::hal::RCOutput servo1(&D12, &T4C0, 50);
+pegasus::hal::RCOutput servo1(&D12, &T4C0, 50);*/
 
 // FC Thread
-//FlightController fc;
-uint32_t PSP     = pegasus::hal::Processor::getPSP();
-uint32_t MSP     = pegasus::hal::Processor::getMSP();
-uint32_t CONTROL = pegasus::hal::Processor::getCONTROL();
-
-void setup()
-{
-
-    led.mode(pegasus::gpio::Mode::OUTPUT);
-    led.high();
-
-
-    pegasus::core::threadManager.start();
-
-  //os::rcout.add(Port2Pin('D', 12), 50);
-  //Pegasus::core::mix.add(Port2Pin('D', 12),0,50);
-
-
-	//sys.timer->attach(loop1Khz, 1000); // 1Khz 0.001ms
-	//sys.timer->attach(loop100hz, 10000); // 100hz 0.010ms
-	//sys.timer->attach(loop10hz, 100000); // 10hz 0.100ms
-}
-
-void loop() {
-
-        led.high();
-
-
-
-        PSP     = pegasus::hal::Processor::getPSP();
-        MSP     = pegasus::hal::Processor::getMSP();
-        CONTROL = pegasus::hal::Processor::getCONTROL();
-        //pegasus::hal::coreTimer.delayMillis(100);
-        //led.low();
-       // pegasus::hal::coreTimer.delayMillis(100);
-
-
-        /*for (int i=900;i<2500;i+=10) {
-            servo1.write(i);
-            pegasus::coreTimer.delayMillis(25);
-        }*/
-
-
-
-}
-
+FlightController fc;
 
 int main(void)
 {
-
+        // Init platform specifique (motor, com, etc ..)
         initPlatform();
 
+        // Start Flight Control Thread
+        fc.start(); // start Fc Thread
 
-        setup();
-
-	while(1) {
-		loop();
-	}
+        // Starte Main scheduler
+        pegasus::core::threadManager.start();
 
 	return 0;
 }

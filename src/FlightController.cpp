@@ -19,6 +19,14 @@ FlightController::~FlightController() {}
  */
 void FlightController::run()
 {
-    while(1) {}
+    pegasus::hal::Gpio led(pegasus::gpio::Port::G, pegasus::gpio::Pin::PIN13);
+    led.mode(pegasus::gpio::Mode::OUTPUT);
+
+    while(1) {
+        led.high();
+        sleep(100);
+        led.low();
+        sleep(100);
+    }
 }
 

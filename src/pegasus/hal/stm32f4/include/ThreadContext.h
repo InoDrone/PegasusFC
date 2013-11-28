@@ -26,7 +26,7 @@ namespace pegasus {
                     uint32_t** getPStack();
 
                     static void callSwitch();
-                    static uint32_t** _sStack;
+                    //static uint32_t** _sStack;
 
                 private:
                     uint32_t* _mStack;

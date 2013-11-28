@@ -24,7 +24,7 @@ namespace pegasus {
                 uint16_t count() const;
                 uint16_t size() const;
 
-                uint16_t find(Obj_t* obj);
+                int16_t find(Obj_t* obj);
 
                 Obj_t* volatile *begin();
                 Obj_t* volatile *end();
@@ -50,9 +50,9 @@ namespace pegasus {
         }
 
         template<class Obj_t, uint8_t Size_t>
-        uint16_t Pipe<Obj_t,Size_t>::find(Obj_t* search)
+        int16_t Pipe<Obj_t,Size_t>::find(Obj_t* search)
         {
-            for (uint16_t i=0;i<size();++i) {
+            for (uint16_t i=0;i<_mCount;++i) {
                 if (_mObjs[i] == search ) {
                     return i;
                 }
@@ -73,6 +73,8 @@ namespace pegasus {
                 }
 
                 _mObjs[_mCount++] = obj;
+
+                return true;
         }
 
         template<class Obj_t, uint8_t Size_t>
@@ -92,6 +94,8 @@ namespace pegasus {
                     _mObjs[i] = _mObjs[i+1];
                 }
                 _mCount--;
+
+                return true;
                // _mObjs[_mCount] = nullptr;
         }
 

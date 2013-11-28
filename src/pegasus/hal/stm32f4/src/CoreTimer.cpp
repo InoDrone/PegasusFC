@@ -67,6 +67,8 @@ namespace pegasus {
               {
                   //steBasePRI
                   pegasus::core::mainTimer.interruptServiceHandler();
+
+                  Core::yield();
                   //setBasePRI 0
               }
             }

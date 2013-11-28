@@ -24,10 +24,17 @@ namespace pegasus {
                 void stop();
 
                 void interruptServiceHandler();
+                uint32_t ticks();
+
             private:
                 pegasus::hal::CoreTimer _mTimer;
                 volatile uint32_t _mTicks;
         };
+
+        INLINE uint32_t MainTimer::ticks()
+        {
+            return _mTicks;
+        }
 
         extern MainTimer mainTimer;
     }

@@ -15,6 +15,7 @@ INCLUDES += $(STM_DIR)/lib
 INCLUDES += $(STM_DIR)/lib/inc
 INCLUDES += $(STM_DIR)/lib/inc/core
 INCLUDES += $(STM_DIR)/lib/inc/peripherals
+LIB_PREFIX = $(STM_DIR)/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
 
 CXX 	= $(TOOLPATH)/arm-none-eabi-g++
 CC  	= $(TOOLPATH)/arm-none-eabi-gcc
@@ -27,9 +28,9 @@ DEFINES  = -DUSE_STDPERIPH_DRIVER -DHSE_VALUE=8000000
 DEFINES += -DF_CPU=$(F_CPU) -DPEGASUS_STM32 -D$(MCU)
 
 #CFLAGS  = -g -Os -Wall -Wextra -mthumb -mthumb-interwork -mcpu=$(FAMILY)
-CFLAGS  = -g -O -Wall -Wextra -Wabi -mthumb -mcpu=$(FAMILY)
+CFLAGS  = -g -O2 -Wall -Wextra -Wabi -mthumb -mcpu=$(FAMILY)
 #CFLAGS += -fsingle-precision-constant -mfloat-abi=hard -mfpu=fpv4-sp-d16
-CFLAGS += -nostdlib -fsigned-char -fsigned-bitfields -fmessage-length=0 -c -ffunction-sections -fdata-sections  -mlittle-endian -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+CFLAGS += -nostdlib -fsingle-precision-constant -ffunction-sections -fdata-sections -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 #CFLAGS += -L$(STM_DIR)/lib -lstm32f4
 #-nostdlib
 CXXFLAGS = -std=gnu++11 
@@ -40,7 +41,7 @@ CXXFLAGS = -std=gnu++11
 
 LDFLAGS =  -nostartfiles -T$(STM_DIR)/STM32F429ZI_FLASH.ld
 LDFLAGS += -mthumb -mcpu=$(FAMILY) -mfloat-abi=hard -mfpu=fpv4-sp-d16
-LDFLAGS += -Wl,--gc-sections -Wl,-Map,$(PROJECTMAP) -Wl,--cref
+LDFLAGS += -Wl,--gc-sections -Wl,-Map,$(PROJECTMAP) -Wl,--cref -L${LIB_PREFIX}
 
 
 
@@ -67,7 +68,7 @@ lib:
 #   $(CXX) $(DEFS) $(INCLUDE) $(CFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lm
 
 $(PROJECTELF): $(OBJS)
-	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4
+	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lgcc -lm -lc
 
 $(PROJECTHEX): $(PROJECTELF)
 	$(OBJCOPY) -O ihex -R .eeprom $< $@

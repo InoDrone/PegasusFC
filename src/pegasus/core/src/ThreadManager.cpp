@@ -7,6 +7,7 @@
 
 #include "pegasus/core/include/MainTimer.h"
 #include "pegasus/core/include/ThreadManager.h"
+#include "pegasus/core/include/MainThread.h"
 #include "pegasus/core/include/IdleThread.h"
 
 namespace pegasus {
@@ -14,7 +15,7 @@ namespace pegasus {
 
         ThreadManager::ThreadManager() :
             _mIsStarted(false),
-            _mCurrentThread(&idleThread) {
+            _mCurrentThread(&mainThread) {
 
         }
 
@@ -33,7 +34,7 @@ namespace pegasus {
             //pegasus::hal::ArchCore::initThread();
             //pegasus::hal::Processor::setCONTROL(0x02);
 
-
+            __set_CONTROL(0x02);
             yield();
         }
 

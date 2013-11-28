@@ -28,7 +28,6 @@ namespace pegasus {
           RCC->DCKCFGR |= RCC_DCKCFGR_TIMPRE;
 
           // Enable threading
-          ThreadContext::_sStack = pegasus::core::mainThread.getContext().getPStack();
           (*((volatile unsigned long *) 0xE000ED20)) |= (PENDSV_INTERRUPT_PRIORITY << 0x10);
       }
 
@@ -101,39 +100,8 @@ namespace pegasus {
 
             pegasus::core::mainThread.start();
 
-
-            /* Set main thread */
-            uint32_t* stack = pegasus::core::mainThread.getTopStackAligned();
-            __set_PSP((uint32_t) stack);
-            __ISB();
-
-            __set_CONTROL( __get_CONTROL() | 0x02 );
-            __ISB();
-
-          /*  Processor::disableInterrupts();
-            asm volatile(
-                    "ldr r1, %[stack]             \n"
-                    "ldr r0, [r1]                 \n"
-                    "                             \n"
-                    //"ldmia r0!, {r4-r11}          \n"
-                    "add r0, r0, #32              \n"
-                    "msr psp, r0                  \n"
-                    :
-                    : [stack] "m"(ThreadContext::_sStack)
-                    :
-            );*/
-
-
-
-
-
-            //yield();
-            //Processor::toMSP();
+            //__set_CONTROL( __get_CONTROL() | 0x02 );
             Processor::enableInterrupts();
-
-
-            //__get_MSP();
-            //__ISB();
 
             main();
 

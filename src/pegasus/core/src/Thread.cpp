@@ -7,6 +7,7 @@
 
 #include "pegasus/core/include/Thread.h"
 #include "pegasus/core/include/ThreadManager.h"
+#include "pegasus/core/include/MainTimer.h"
 
 namespace pegasus
 {
@@ -41,10 +42,14 @@ namespace pegasus
         /**
          * Static method called by Context Switch
          */
-        void Thread::runEntryPoint(Thread_t* entry, Thread* pThread)
+        void Thread::runEntryPoint(Thread_t entry, Thread* pThread)
         {
             // execute function
             (*entry)();
+
+
+          // pass control to the next thread
+          pegasus::hal::ArchCore::yield();
         }
 
         uint32_t* Thread::getTopStack()
@@ -52,17 +57,10 @@ namespace pegasus
             return _mStack.top;
         }
 
-        uint32_t* Thread::getTopStackAligned()
-        {
-            // go to the end of the unaligned area
-            char* p = reinterpret_cast<char*>(_mStack.top);
+        void Thread::sleep(uint32_t ms) {
+            uint32_t start = pegasus::core::mainTimer.ticks();
 
-            // compute how far we are from the alignment area
-            // assume the input value is a power of 2
-            uint32_t diff = ((uint32_t) p) & 7;
-
-            // diminish pointer to aligned border
-            return (uint32_t*) (p - diff);
+            while( (pegasus::core::mainTimer.ticks() - start) < ms);
         }
 
     } /* namespace core */

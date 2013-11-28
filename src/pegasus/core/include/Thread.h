@@ -51,14 +51,13 @@ namespace pegasus {
 
                 void init();
                 void start();
+                void sleep(uint32_t ms);
 
                 uint32_t* getTopStack();
-                uint32_t* getTopStackAligned();
                 pegasus::hal::ThreadContext& getContext();
 
                 thread::State getState() const;
-
-                static void runEntryPoint(Thread_t*, Thread* pThread);
+                static void runEntryPoint(Thread_t, Thread* pThread);
 
             private:
 

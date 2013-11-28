@@ -11,7 +11,7 @@
 #include "pegasus/core/include/Defs.h"
 #include "pegasus/core/include/Pipe.h"
 
-#define MAX_THREAD 3
+#define MAX_THREAD 10
 
 namespace pegasus {
     namespace core {
