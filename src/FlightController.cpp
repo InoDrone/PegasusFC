@@ -8,6 +8,7 @@
 #include "FlightController.h"
 
 using namespace pegasus::core;
+using namespace pegasus::gpio;
 
 FlightController::FlightController():
     Thread("FC", [](FlightController* p) { p->run();}) {}
@@ -19,8 +20,8 @@ FlightController::~FlightController() {}
  */
 void FlightController::run()
 {
-    pegasus::hal::Gpio led(pegasus::gpio::Port::G, pegasus::gpio::Pin::PIN13);
-    led.mode(pegasus::gpio::Mode::OUTPUT);
+    pegasus::hal::Gpio led(Port::G, Pin::PIN13);
+    led.mode(Mode::OUTPUT);
 
     while(1) {
         led.high();

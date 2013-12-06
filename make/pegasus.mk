@@ -8,24 +8,16 @@ PROJECT_ROOT  := $(realpath $(dir $(firstword $(MAKEFILE_LIST))))
 PROJECT_NAME  := $(lastword $(subst /, ,$(PROJECT_ROOT)))
 
 # SOURCES
-SRCROOT = $(PROJECT_ROOT)/src
-PEGASUSROOT = $(PROJECT_ROOT)/src/pegasus/core/src
+SRCROOT 		= $(PROJECT_ROOT)/src
+PEGASUS_DIR     = $(PROJECT_ROOT)/pegasus
+LIB_DIR     	= $(PROJECT_ROOT)/lib
+PEGASUS_LIB     = $(LIB_DIR)/libpegasus.a
 
 BUILDROOT = /tmp/$(PROJECT_NAME)
 
 include $(PROJECT_ROOT)/config.mk
 ifeq ($(PEGASUS_PLATFORM),)
 $(error ERROR: could not load $(PROJECT_ROOT)/config.mk)
-endif
-
-ifeq ($(PEGASUS_PLATFORM), PIC32)
-	PEGASUSHALROOT = $(PROJECT_ROOT)/src/pegasus/hal/pic32/src
-	PEGASUSHALINC  = $(PROJECT_ROOT)/src/pegasus/hal/pic32/include
-endif
-
-ifeq ($(PEGASUS_PLATFORM), STM32)
-	PEGASUSHALROOT = $(PROJECT_ROOT)/src/pegasus/hal/stm32f4/src
-	PEGASUSHALINC  = $(PROJECT_ROOT)/src/pegasus/hal/stm32f4/include
 endif
 
 
@@ -38,24 +30,10 @@ FCSOBJS   := $(addsuffix .o,$(basename $(FCSOBJS)))
 FCINC     := ${SRCROOT}
 
 ###################################################################
-#	PEGASUS CORE SOURCES / OBJS
-###################################################################
-PEGASUSSRCS := $(wildcard $(addprefix $(PEGASUSROOT)/,$(SRCSUFFIXES)))
-PEGASUSOBJS := $(subst $(SRCROOT),$(BUILDROOT),$(PEGASUSSRCS))
-PEGASUSOBJS := $(addsuffix .o,$(basename $(PEGASUSOBJS)))
-
-###################################################################
-#	PEGASUS HAL SOURCES / OBJS
-###################################################################
-PEGASUSHALSRCS := $(wildcard $(addprefix $(PEGASUSHALROOT)/,$(SRCSUFFIXES)))
-PEGASUSHALOBJS := $(subst $(SRCROOT),$(BUILDROOT),$(PEGASUSHALSRCS))
-PEGASUSHALOBJS := $(addsuffix .o,$(basename $(PEGASUSHALOBJS)))
-
-###################################################################
 #	SOURCES / INCLUDE
 ###################################################################
-SRCS = ${PEGASUSSRCS} ${PEGASUSHALSRCS} ${FCSRCS}
-OBJS = ${PEGASUSOBJS} ${PEGASUSHALOBJS} ${FCSOBJS}
+SRCS = ${FCSRCS}  $(SRCROOT)/platform/src/Pegasus$(PEGASUS_PLATFORM)$(PEGASUS_VERSION).cpp
+OBJS = ${FCSOBJS} $(BUILDROOT)/platform/src/Pegasus$(PEGASUS_PLATFORM)$(PEGASUS_VERSION).o
 INCLUDES = ${FCINC}
 
 ifeq ($(PEGASUS_PLATFORM),PIC32)
@@ -70,7 +48,7 @@ check:
 	@echo $(SRCS)
 	@echo $(OBJS)
 
-all: info $(PEGASUS_PLATFORM)
+all: clean info $(PEGASUS_PLATFORM)
 
 info:
 	@echo "****************************************************************************"
@@ -81,6 +59,3 @@ info:
 	@echo "* Platform				: $(PEGASUS_PLATFORM)"
 	@echo "* Uploader				: $(UPLOADER)"
 	@echo "****************************************************************************"
-	
-clean:
-	rm -rf $(BUILDROOT)/*

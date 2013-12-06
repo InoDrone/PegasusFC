@@ -11,6 +11,7 @@ STFLASH   = $(STLINKDIR)/st-flash
 
 STM_DIR=$(PROJECT_ROOT)/make/stm32
 
+INCLUDES += $(PEGASUS_DIR)
 INCLUDES += $(STM_DIR)/lib
 INCLUDES += $(STM_DIR)/lib/inc
 INCLUDES += $(STM_DIR)/lib/inc/core
@@ -21,6 +22,7 @@ CXX 	= $(TOOLPATH)/arm-none-eabi-g++
 CC  	= $(TOOLPATH)/arm-none-eabi-gcc
 OBJCOPY	= $(TOOLPATH)/arm-none-eabi-objcopy
 AR		= $(TOOLPATH)/arm-none-eabi-ar
+OD      = $(TOOLPATH)/arm-none-eabi-objdump
 
 INCLUDES  := $(addprefix -I,$(INCLUDES))
 
@@ -30,7 +32,7 @@ DEFINES += -DF_CPU=$(F_CPU) -DPEGASUS_STM32 -D$(MCU)
 #CFLAGS  = -g -Os -Wall -Wextra -mthumb -mthumb-interwork -mcpu=$(FAMILY)
 CFLAGS  = -g -O2 -Wall -Wextra -Wabi -mthumb -mcpu=$(FAMILY)
 #CFLAGS += -fsingle-precision-constant -mfloat-abi=hard -mfpu=fpv4-sp-d16
-CFLAGS += -nostdlib -fsingle-precision-constant -ffunction-sections -fdata-sections -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+CFLAGS +=  -fsingle-precision-constant -ffunction-sections -fdata-sections -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 #CFLAGS += -L$(STM_DIR)/lib -lstm32f4
 #-nostdlib
 CXXFLAGS = -std=gnu++11 
@@ -49,17 +51,23 @@ PROJECTELF               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.elf
 PROJECTBIN               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.bin
 PROJECTHEX               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.hex
 PROJECTMAP               =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.map
+PROJECTLST             =       $(BUILDROOT)/$(PROJECT_NAME)-STM32.lst
 
 vpath %.a $(STM_DIR)/lib
+vpath %.a $(LIB_DIR)
 
 .PHONY: STM32
-STM32: lib $(PROJECTELF) $(PROJECTHEX) $(PROJECTBIN)
+STM32: libSTM32 libPegasus $(PROJECTELF) $(PROJECTHEX) $(PROJECTBIN)
 
 .PHONY: upload
 upload: $(PROJECTBIN)
 	$(STFLASH) write $(PROJECTBIN)  0x08000000
 
-lib:
+
+libPegasus:
+	$(MAKE) -C $(PEGASUS_DIR) TOOLPATH=$(TOOLPATH) PEGASUS_PLATFORM=STM32
+	
+libSTM32:
 	$(MAKE) -C $(STM_DIR)/lib TOOLPATH=$(TOOLPATH) MCU=$(MCU)
 
 #$(PROJECTELF): $(SRCS)
@@ -68,10 +76,12 @@ lib:
 #   $(CXX) $(DEFS) $(INCLUDE) $(CFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lm
 
 $(PROJECTELF): $(OBJS)
-	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lgcc -lm -lc
+	$(eval PEGASUS_OBJ := $(wildcard $(PEGASUS_DIR)/build/*.o))
+	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $(PEGASUS_OBJ) $^ -o $@ -lgcc -lm -lc
 
 $(PROJECTHEX): $(PROJECTELF)
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
+	$(OD) -S $(PROJECTELF) > $(PROJECTLST)
 	
 $(PROJECTBIN): $(PROJECTELF)
 	$(OBJCOPY) -v -O binary $< $@
@@ -85,3 +95,8 @@ $(BUILDROOT)/%.o: $(SRCROOT)/%.c
 	@echo %% $(subst $(BUILDROOT)/,,$@)
 	@mkdir -p $(dir $@)
 	$(CXX) -c $(DEFINES) $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $^ -o $@
+	
+
+clean:
+	$(MAKE) -C $(PEGASUS_DIR) clean
+	rm -rf $(BUILDROOT)/*

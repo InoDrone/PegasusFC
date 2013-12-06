@@ -28,7 +28,7 @@
 */
 
 /* Library configurations */
-GROUP(libgcc.a libc.a libm.a)
+/* GROUP(libgcc.a libc.a libm.a) */
 
 /* Entry Point */
 ENTRY(Reset_Handler)
@@ -57,7 +57,7 @@ SECTIONS
   {
     . = ALIGN(4);
     KEEP(*(.core_isr_vectors))
-    KEEP(*(.isr_vector))
+    KEEP(*(.isr_peripherals_vectors))
     . = ALIGN(4);
   } >FLASH
 
@@ -202,9 +202,9 @@ SECTIONS
   /* Remove information from the standard libraries */
   DISCARD :
   {
-    libc.a ( * )
-    libm.a ( * )
-    libgcc.a ( * )
+   /* libc.a ( * )*/
+   /* libm.a ( * )*/
+   /* libgcc.a ( * )*/
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }

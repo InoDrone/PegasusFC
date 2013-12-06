@@ -8,7 +8,7 @@
 #ifndef FLIGHTCONTROLLER_H_
 #define FLIGHTCONTROLLER_H_
 
-#include "pegasus/core/include/Thread.h"
+#include "core/include/Thread.h"
 
 using namespace pegasus::core;
 
