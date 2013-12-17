@@ -18,8 +18,15 @@ class FlightController : public Thread
         FlightController();
         ~FlightController();
 
+        static void calibrationMode();
+        static void waitingMode();
+        static void flightMode();
+
     protected:
         void run();
+
+    private:
+       static pegasus::Func _pFunc;
 };
 
 extern FlightController fc;

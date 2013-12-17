@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include "fc/include/GyroAccBase.h"
+#include "fc/include/SonarBase.h"
 
 namespace pegasus
 {
@@ -27,7 +28,7 @@ namespace pegasus
             public:
                 Engine();
 
-                void init(GyroAccBase* gyroAcc);
+                void init(GyroAccBase* gyroAcc, SonarBase* sonar);
 
             private:
                 void initMixing(uint8_t frameType);
@@ -36,6 +37,7 @@ namespace pegasus
 
 
                 GyroAccBase* _mGyroAcc;
+                SonarBase* _mSonar;
         };
 
         extern Engine engine;

@@ -16,33 +16,22 @@
  *  Project: InoDronePegasus
  */
 
-#ifndef UARTDRIVERBASE_H_
-#define UARTDRIVERBASE_H_
-
-#include "core/include/ComDeviceBase.h"
-
+#ifndef SONARBASE_H_
+#define SONARBASE_H_
 
 namespace pegasus {
-    namespace hal {
+    namespace fc {
 
-        template<class UartReg_t, class UartConfig_t>
-        class UARTDriverBase : public pegasus::core::ComDeviceBase {
+        class SonarBase {
             public:
-                UARTDriverBase(UartReg_t* reg, UartConfig_t config) :
-                    pegasus::core::ComDeviceBase(),
-                    _mReg(reg),
-                    _mConfig(config),
-                    _mStarted(false) {}
+                SonarBase() {};
 
-            protected:
-                UartReg_t* _mReg;
-                UartConfig_t _mConfig;
-                bool _mStarted;
+                virtual void init() = 0;
+                virtual uint32_t getDistance() = 0;
         };
-
     }
 }
 
 
 
-#endif /* UARTDRIVER_H_ */
+#endif /* SONARBASE_H_ */

@@ -1,6 +1,5 @@
 #include "platform/include/PegasusSTM32VB.h"
-#include "core/include/Trace.h"
-#include "core/include/Shell.h"
+#include "core/include/ComManager.h"
 
 namespace pegasus {
 
@@ -76,8 +75,8 @@ pegasus::peripherals::MaxSonar sonar(&sonarInput);
 void initPlatform()
 {
     /* Init engine */
-    pegasus::core::shell.init(&pegasus::hal::uart::uart3);
-    pegasus::fc::engine.init(&l3gd20);
+    pegasus::core::com.addDevice(&pegasus::hal::uart::uart3);
+    pegasus::fc::engine.init(&l3gd20, &sonar);
 }
 
 

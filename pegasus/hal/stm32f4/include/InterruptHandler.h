@@ -40,6 +40,11 @@ namespace pegasus {
               extern void TIM3Int(void);
               extern void TIM4Int(void);
               extern void TIM5Int(void);
+              extern void UART1Int(void);
+              extern void UART2Int(void);
+              extern void UART3Int(void);
+              extern void UART4Int(void);
+              extern void UART5Int(void);
             }
 
 
@@ -148,11 +153,11 @@ namespace pegasus {
                     /* SPI2_IRQHandler */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* UART1 */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::UART1Int),
                     /* UART2 */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::UART2Int),
                     /* UART3 */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::UART3Int),
                     /* EXTI15_10_IRQHandler             External Line[15:10]s */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::EXTIx),
                     /* RTC_Alarm_IRQHandler  */
@@ -178,9 +183,9 @@ namespace pegasus {
                     /* SPI3_IRQHandler  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* UART4_IRQHandler  */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::UART4Int),
                     /* UART5_IRQHandler  */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::UART5Int),
                     /* TIM6_DAC_IRQHandler  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* TIM7_IRQHandler  */

@@ -8,7 +8,6 @@
 #include "fc/include/Engine.h"
 #include "fc/include/Mixing.h"
 #include "core/include/Trace.h"
-#include "core/include/Shell.h"
 
 namespace pegasus
 {
@@ -17,9 +16,10 @@ namespace pegasus
 
         Engine::Engine() {}
 
-        void Engine::init(GyroAccBase* gyroAcc)
+        void Engine::init(GyroAccBase* gyroAcc, SonarBase* sonar)
         {
             _mGyroAcc = gyroAcc;
+            _mSonar = sonar;
 
             initCommunication();
             initMixing(0); // TODO
@@ -51,13 +51,12 @@ namespace pegasus
 
         void Engine::initCommunication()
         {
-            if (pegasus::core::shell.isConnected()) {
+            /*if (pegasus::core::shell.isConnected()) {
                 pegasus::core::trace.debug("[SHELL] Started/Connected");
             } else {
                 pegasus::core::trace.debug("[SHELL] Not implemented");
-            }
+            }*/
 
-            //TODO init debug serial
             pegasus::core::trace.debug("[BLUETOOTH] Not implemented");
             //TODO init serial over Bluetooth and UavLink
         }
@@ -65,6 +64,9 @@ namespace pegasus
         void Engine::initSensors()
         {
             _mGyroAcc->init();
+            _mSonar->init();
+
+            _mGyroAcc->getZeroOffset();
         }
 
     } /* namespace fc */

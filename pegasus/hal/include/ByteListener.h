@@ -16,37 +16,24 @@
  *  Project: InoDronePegasus
  */
 
-#ifndef SHELL_H_
-#define SHELL_H_
+#ifndef UARTLISTENER_H_
+#define UARTLISTENER_H_
 
-#include "core/include/Pegasus.h"
-#include "hal/include/UARTDriverBase.h"
 
 namespace pegasus {
-    namespace core {
+    namespace hal {
 
-        class Shell
-        {
+        class ByteListener {
             public:
-                Shell();
-                void init(pegasus::hal::UARTDriverBase_t* uart);
-
-                void print(const char msg[]);
-                void println(const char msg[]);
-                void write(char c);
-
-                bool isConnected() {
-                    return _mConnected;
+                virtual void receive(uint8_t byte) = 0;
+                static void trampoline(ByteListener* listener, uint8_t byte) {
+                    listener->receive(byte);
                 }
 
-            private:
-                pegasus::hal::UARTDriverBase_t* _mUart;
-                bool _mConnected;
         };
+    }
+}
 
-        extern Shell shell;
 
-    } /* namespace core */
-} /* namespace pegasus */
 
-#endif /* SHELL_H_ */
+#endif /* UARTLISTENER_H_ */

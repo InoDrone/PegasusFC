@@ -17,21 +17,27 @@
  */
 
 #include "MaxSonar.h"
+#include "core/include/Trace.h"
 
 namespace pegasus {
     namespace peripherals {
 
         MaxSonar::MaxSonar(pegasus::hal::PWMInput* pwmIn) :
-                _mDistance(0)
+                _mDistance(0),
+                _mPwmIn(pwmIn)
         {
-            pwmIn->attachInterrupt(this);
+
+        }
+
+        void MaxSonar::init() {
+            pegasus::core::trace.log("[MAXSONAR] Initialization");
+            _mPwmIn->attachInterrupt(this);
+            pegasus::core::trace.log("[MAXSONAR] Initialization done");
         }
 
         void MaxSonar::pwmUpdate(uint32_t pulseTime)
         {
             _mDistance = (uint32_t)(pulseTime/58);
-            pegasus::core::trace.print(_mDistance);
-            pegasus::core::trace.println();
         }
 
     } /* namespace peripherals */

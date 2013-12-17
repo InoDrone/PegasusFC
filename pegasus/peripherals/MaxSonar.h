@@ -20,16 +20,18 @@
 #define MAXSONAR_H_
 
 #include "core/include/Pegasus.h"
-#include "core/include/Trace.h"
+#include "fc/include/SonarBase.h"
 #include "hal/include/PWMListener.h"
 
 namespace pegasus {
     namespace peripherals {
 
-        class MaxSonar : public pegasus::hal::PWMListener
+        class MaxSonar : public pegasus::fc::SonarBase, public pegasus::hal::PWMListener
         {
             public:
                 MaxSonar(pegasus::hal::PWMInput* pwmIn);
+
+                void init();
                 /**
                  * Get sonar distance in cm
                  */
@@ -38,6 +40,7 @@ namespace pegasus {
                 void pwmUpdate(uint32_t pulseTime);
 
             private:
+                pegasus::hal::PWMInput* _mPwmIn;
                 uint32_t _mDistance;
         };
 

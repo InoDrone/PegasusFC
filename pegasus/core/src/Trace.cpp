@@ -15,27 +15,27 @@ namespace pegasus
         Trace::Trace() { }
 
         void Trace::debug(const char msg[]) {
-            shell.print("[D]");
-            shell.println(msg);
+            com.print("[D]", ComManager::DEBUG);
+            com.println(msg, ComManager::DEBUG);
         }
 
         void Trace::log(const char msg[]) {
-            shell.print("[L]");
-            shell.println(msg);
+            com.print("[L]", ComManager::DEBUG);
+            com.println(msg, ComManager::DEBUG);
         }
 
         void Trace::warn(const char msg[]) {
-            shell.print("[W]");
-            shell.println(msg);
+            com.print("[W]", ComManager::DEBUG);
+            com.println(msg, ComManager::DEBUG);
         }
 
         void Trace::error(const char msg[]) {
-            shell.print("[E]");
-            shell.println(msg);
+            com.print("[E]", ComManager::DEBUG);
+            com.println(msg, ComManager::DEBUG);
         }
 
         void Trace::print(const char msg[]) {
-            shell.print(msg);
+            com.print(msg, ComManager::DEBUG);
         }
 
         void Trace::print(uint32_t number) {
@@ -43,7 +43,7 @@ namespace pegasus
             unsigned long i = 0;
 
             if (number == 0) {
-                shell.write('0');
+                com.write('0', ComManager::DEBUG);
             }
 
             while (number > 0) {
@@ -52,15 +52,15 @@ namespace pegasus
             }
 
             for (; i > 0; i--) {
-                shell.write((char)(buf[i - 1] < 10 ?
+                com.write((char)(buf[i - 1] < 10 ?
                              '0' + buf[i - 1] :
-                             'A' + buf[i - 1] - 10));
+                             'A' + buf[i - 1] - 10), ComManager::DEBUG);
             }
         }
 
         void Trace::println()
         {
-            shell.print("\r\n");
+            com.print("\r\n", ComManager::DEBUG);
         }
 
     } /* namespace core */

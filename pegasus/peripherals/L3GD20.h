@@ -65,6 +65,9 @@ namespace pegasus
 
                 void interrupt();
 
+                void getZeroOffset();
+                void calibration();
+
             private:
                 pegasus::hal::SpiDeviceBase_t* _mSpi;
                 uint16_t values[3];

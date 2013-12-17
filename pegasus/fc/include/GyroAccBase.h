@@ -20,6 +20,9 @@ namespace pegasus {
                 virtual void getMotion6() = 0;
                 virtual void getGYRO() = 0;
                 virtual void getACC() = 0;
+
+                virtual void getZeroOffset() = 0;
+                virtual void calibration() = 0;
         };
     }
 }

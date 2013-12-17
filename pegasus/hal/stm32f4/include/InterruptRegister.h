@@ -9,6 +9,7 @@
 #define INTERRUPTREGISTER_H_
 
 #include "hal/include/InterruptListener.h"
+#include "hal/include/ByteListener.h"
 #include "hal/stm32f4/include/Defs.h"
 #include "hal/stm32f4/include/TimerChannel.h"
 #include "hal/stm32f4/include/Gpio.h"
@@ -36,9 +37,13 @@ namespace pegasus {
 
                     static bool attachTimerInt(pegasus::hal::InterruptListener* listener, TimerChannel* channel);
 
+                    static bool attachUARTInterrupt(pegasus::hal::ByteListener* listener, USART_TypeDef* reg);
+                    static void UARTInt(USART_TypeDef*, uint8_t);
+
                     static pegasus::hal::InterruptListener* extHandlers[15]; // 15 interrupt
                     static pegasus::hal::InterruptListener* serviceHandler[pegasus::fc::service::SERVICE_SIZE];
                     static pegasus::hal::InterruptListener* timListener[64]; // TODO calc size
+                    static pegasus::hal::ByteListener* uartListener[5];
             };
 
            /* template<class Entry_t>

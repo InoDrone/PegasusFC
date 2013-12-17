@@ -17,6 +17,7 @@ namespace pegasus
             pegasus::hal::InterruptListener* InterruptRegister::extHandlers[15]; // 15 interrupt
             pegasus::hal::InterruptListener* InterruptRegister::serviceHandler[pegasus::fc::service::SERVICE_SIZE];
             pegasus::hal::InterruptListener* InterruptRegister::timListener[64]; // TODO calc size
+            pegasus::hal::ByteListener* InterruptRegister::uartListener[5];
 
 
             bool InterruptRegister::attachExternalInt(pegasus::hal::InterruptListener* listener, Gpio* io)
@@ -61,7 +62,7 @@ namespace pegasus
                 NVIC->IP[irq] = 0x0F << 0x04; // TODO change to dynamic prio
                 NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
 
-                extHandlers[0] = listener;
+                extHandlers[bit] = listener;
 
                 return true;
             }
@@ -109,6 +110,60 @@ namespace pegasus
                 if (serviceHandler[serviceId]) {
                     pegasus::hal::InterruptListener::trampoline(serviceHandler[serviceId]);
                 }
+            }
+
+            /**
+             * Attache UART receiver interrupt
+             */
+            bool InterruptRegister::attachUARTInterrupt(pegasus::hal::ByteListener* listener, USART_TypeDef* reg)
+            {
+                uint8_t id;
+                uint32_t irq;
+
+                if (reg == USART1) {
+                    irq = USART1_IRQn;
+                    id = 0;
+                } else if(reg == USART2) {
+                    irq = USART2_IRQn;
+                    id = 1;
+                } else if(reg == USART3) {
+                    irq = USART3_IRQn;
+                    id = 2;
+                } else if(reg == UART4) {
+                    irq = UART4_IRQn;
+                    id = 3;
+                } else if(reg == UART5) {
+                    irq = UART5_IRQn;
+                    id = 4;
+                }
+
+                if (uartListener[id]) return false;
+
+                reg->CR1 |= USART_CR1_RXNEIE; // Enable receive Int
+                NVIC->IP[irq] = 0x0A << 0x04; // TODO change to dynamic prio
+                NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
+
+                uartListener[id] = listener;
+
+                return true;
+            }
+
+            /**
+             * Global USART interrupt
+             */
+            void InterruptRegister::UARTInt(USART_TypeDef* reg, uint8_t id)
+            {
+                Processor::disableInterrupts();
+                if (reg->SR & USART_SR_RXNE) {
+                    uint8_t byte = reg->DR;
+                    if (uartListener[id]) {
+                        pegasus::hal::ByteListener::trampoline(uartListener[id], byte);
+                    }
+                    reg->SR &= ~(USART_SR_RXNE); // Clear int flag
+                } else if (reg->SR & USART_SR_TXE) {
+                    reg->SR &= ~(USART_SR_TXE); // Clear int flag
+                }
+                Processor::enableInterrupts();
             }
 
             namespace InterruptHandler
@@ -166,6 +221,30 @@ namespace pegasus
 
                 }
 
+                void UART1Int()
+                {
+                    InterruptRegister::UARTInt(USART1, 0);
+                }
+
+                void UART2Int()
+                {
+                    InterruptRegister::UARTInt(USART2, 1);
+                }
+
+                void UART3Int()
+                {
+                    InterruptRegister::UARTInt(USART3, 2);
+                }
+
+                void UART4Int()
+                {
+                    InterruptRegister::UARTInt(UART4, 3);
+                }
+
+                void UART5Int()
+                {
+                    InterruptRegister::UARTInt(UART5, 4);
+                }
             }
 
         } /* namespace stm32f4 */

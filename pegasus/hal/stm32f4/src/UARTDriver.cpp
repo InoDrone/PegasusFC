@@ -17,6 +17,7 @@
  */
 
 #include "hal/stm32f4/include/UARTDriver.h"
+#include "hal/stm32f4/include/InterruptRegister.h"
 
 namespace pegasus
 {
@@ -66,7 +67,10 @@ namespace pegasus
             bool UARTDriver::open()
             {
                 _mReg->CR1 |= USART_CR1_UE;
+                InterruptRegister::attachUARTInterrupt(this, _mReg);
+
                 _mStarted = true;
+                _mConnected = true;
 
                 return true;
             }
@@ -75,6 +79,7 @@ namespace pegasus
             {
                 _mReg->CR1 &= ~(USART_CR1_UE);
                 _mStarted = false;
+                _mConnected = false;
 
                 return true;
             }
@@ -124,6 +129,12 @@ namespace pegasus
             void UARTDriver::write(char c) {
                 while ( !(_mReg->SR & USART_SR_TC) );
                 _mReg->DR = c;
+            }
+
+            void UARTDriver::receive(uint8_t byte) {
+                //uint32_t time = pegasus::core::mainTimer.millis();
+
+                ComDeviceBase::receive(byte);
             }
 
             /*uint32_t UARTDriver::write(const uint8_t buffer[])

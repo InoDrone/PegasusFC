@@ -78,6 +78,16 @@ namespace pegasus
 
         }
 
+        void L3GD20::getZeroOffset()
+        {
+
+        }
+
+        void L3GD20::calibration()
+        {
+
+        }
+
         /******************************************
          * INT2 DRDY
          ******************************************/

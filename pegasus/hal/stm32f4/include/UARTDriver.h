@@ -76,6 +76,8 @@ namespace pegasus {
                     uint32_t write(const char *msg);
                     void write(char c);
 
+                    void receive(uint8_t byte);
+
                 private:
                     void setBaudRate();
             };

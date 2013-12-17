@@ -11,7 +11,7 @@
 #include "core/include/MainThread.h"
 #include "core/include/IdleThread.h"
 #include "core/include/Trace.h"
-#include "core/include/Shell.h"
+#include "core/include/ComManager.h"
 
 #include "fc/include/Engine.h"
 #include "fc/include/Mixing.h"
@@ -56,7 +56,7 @@ namespace pegasus {
         pegasus::core::ThreadManager threadManager;
         pegasus::core::MainThread mainThread;
         pegasus::core::IdleThread idleThread;
-        pegasus::core::Shell shell;
+        pegasus::core::ComManager com;
     }
 
     namespace hal {

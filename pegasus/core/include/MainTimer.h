@@ -25,6 +25,7 @@ namespace pegasus {
 
                 void interruptServiceHandler();
                 uint32_t ticks();
+                uint32_t millis();
 
             private:
                 pegasus::hal::CoreTimer _mTimer;
@@ -32,6 +33,11 @@ namespace pegasus {
         };
 
         INLINE uint32_t MainTimer::ticks()
+        {
+            return _mTicks;
+        }
+
+        INLINE uint32_t MainTimer::millis()
         {
             return _mTicks;
         }

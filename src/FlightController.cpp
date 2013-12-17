@@ -10,6 +10,8 @@
 using namespace pegasus::core;
 using namespace pegasus::gpio;
 
+pegasus::Func FlightController::_pFunc;
+
 FlightController::FlightController():
     Thread("FC", [](FlightController* p) { p->run();}) {}
 
@@ -20,14 +22,62 @@ FlightController::~FlightController() {}
  */
 void FlightController::run()
 {
+    uint32_t counter = 0;
+    _pFunc = &FlightController::waitingMode;
+
     pegasus::hal::Gpio led(Port::G, Pin::PIN13);
     led.mode(Mode::OUTPUT);
 
     while(1) {
-        led.high();
-        sleep(100);
-        led.low();
-        sleep(100);
+
+        /* if (rc.throttle == MIN_THROTTLE) {
+            if (rc.pitch == MIN_PITCH_CMD && rc.yaw == MIN_YAW_CMD && counter >= 40) { // for 2 second
+                counter = 0;
+                _pFunc = &FlightController::flightMode;
+            } else if (rc.pitch
+
+           }*/
+
+
+        // Execute pointer function
+        (*_pFunc)();
+
+        // Sleep 50 ms
+
+        counter++;
+        sleep(50);
     }
+}
+
+void FlightController::calibrationMode()
+{
+    // Check commande for entering in correct calibration mode
+
+    // - ESC
+    //   Down PWM signal to very lower value (500)
+    //   wait 1s
+    //   UP PWM signal to max engine value (2500) (entering ESC calibration)
+    //   wait 1s
+    //   Down PWM signal to min engine value (1000)
+    //   wait 1s
+    //   Down PWM signal to very lower value
+    //   wait 1s
+    //   UP PWM signal to min engine value (1000)
+    //   Finish
+
+    // - Radio
+
+    // - Sensors
+}
+
+void FlightController::waitingMode()
+{
+
+}
+
+void FlightController::flightMode()
+{
+    // start motor
+    // if auto landing -> go to 1 meter and stabilize
 }
 
