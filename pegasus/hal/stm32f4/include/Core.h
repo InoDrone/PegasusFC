@@ -15,11 +15,14 @@ int main();
 extern "C" {
   extern u32    _etext;
   extern u32    _sdata;
+  extern u32    _sidata;
   extern u32    _edata;
   extern u32    __bss_start__;
   extern u32    __bss_end__;
   extern u32   __init_array_start;
   extern u32   __init_array_end;
+
+  extern void __libc_init_array();
 }
 
 namespace pegasus {
@@ -37,7 +40,6 @@ namespace pegasus {
 
             class Core : public HalBase {
                 public:
-                    Core(void) = delete;
                     static void init();
                     static void reset();
 

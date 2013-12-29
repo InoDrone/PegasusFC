@@ -24,33 +24,9 @@ namespace pegasus {
 
             uint8_t TimerChannel::getUniqId()
             {
-                uint8_t pos = 0;
-                __IO TIM_TypeDef* reg = _mTimer->getReg();
-                if (reg == TIM2) {
-                    pos = 1;
-                } else if (reg == TIM3) {
-                    pos = 2;
-                } else if (reg == TIM4) {
-                    pos = 3;
-                } else if (reg == TIM5) {
-                    pos = 4;
-                } else if (reg == TIM6) {
-                    pos = 5;
-                } else if (reg == TIM7) {
-                    pos = 6;
-                } else if (reg == TIM8) {
-                    pos = 7;
-                } else if (reg == TIM9) {
-                    pos = 8;
-                } else if (reg == TIM10) {
-                    pos = 9;
-                } else {
-                    pos = 10;
-                }// TODO finish
-
-                return (uint8_t)((pos * 4) + _mChannel);
+                uint8_t id = _mTimer->getUniqId();
+                return (uint8_t)(id + (_mChannel + 1 ));
             }
-
         }
     }
 }

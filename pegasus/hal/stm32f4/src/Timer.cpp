@@ -6,6 +6,7 @@
  */
 
 #include "hal/stm32f4/include/Timer.h"
+#include "hal/stm32f4/include/Core.h"
 
 namespace pegasus {
     namespace hal {
@@ -18,6 +19,8 @@ namespace pegasus {
                     RCC->APB1ENR |= RCC_TIM3;
                 } else if (_mReg == TIM4 ) {
                     RCC->APB1ENR |= RCC_TIM4;
+                } else if (_mReg == TIM6 ) {
+                    RCC->APB1ENR |= RCC_TIM6;
                 }
 
                 // Reset timer
@@ -30,8 +33,10 @@ namespace pegasus {
                 uint16_t psc = (uint16_t) (periodCycle / (65536+1)); // Prescaler
                 uint16_t arr = (uint16_t) (periodCycle / (psc+1));   // Reload (Overflow)
                 */
+                Clocks clocks;
+                Core::getSystemClock(&clocks);
 
-                uint16_t psc = (uint16_t)((SystemCoreClock / 1000000) -1);
+                uint16_t psc = (uint16_t)(( (clocks.PCLK1*2) / 1000000) -1);
                 uint16_t arr = 0xFFFF;
                 if (freqHz < 0xFFFF) {
                     arr = (uint16_t)( 1000000 / freqHz);
@@ -75,6 +80,34 @@ namespace pegasus {
                         _mReg->CCER |= (TIM_CCER_CC1E << (channel *4)); // Enable channel OC
                         break;
                 }
+            }
+
+            uint8_t Timer::getUniqId()
+            {
+                uint8_t pos = 0;
+                if (_mReg == TIM2) {
+                    pos = 1;
+                } else if (_mReg == TIM3) {
+                    pos = 2;
+                } else if (_mReg == TIM4) {
+                    pos = 3;
+                } else if (_mReg == TIM5) {
+                    pos = 4;
+                } else if (_mReg == TIM6) {
+                    pos = 5;
+                } else if (_mReg == TIM7) {
+                    pos = 6;
+                } else if (_mReg == TIM8) {
+                    pos = 7;
+                } else if (_mReg == TIM9) {
+                    pos = 8;
+                } else if (_mReg == TIM10) {
+                    pos = 9;
+                } else {
+                    pos = 10;
+                }// TODO finish
+
+                return (uint8_t)(pos * 5); // 5 interrupt 4 OC/IC , 1 Update Interrupt
             }
         }
     }

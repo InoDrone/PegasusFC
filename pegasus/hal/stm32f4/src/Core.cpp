@@ -134,11 +134,15 @@ namespace pegasus {
           u32 *pDest;
 
           // Load initialized data from FLASH to RAM
-          pSrc = &_etext;
-          pDest = &_sdata;
+          pSrc = &_sidata;
 
-          while(pDest < &_edata)
-            *pDest++ = *pSrc++;
+          for (pDest = &_sdata; pDest < &_edata;) {
+              *(pDest++) = *(pSrc++);
+          }
+
+          /*while(pDest < &_edata)
+            *pDest++ = *pSrc++;*/
+
 
           // Clear bss uninitialized data
           pDest = &__bss_start__;
@@ -160,11 +164,12 @@ namespace pegasus {
         {
 
             Core::initDataEndBss();
-            Core::callStaticConstructors();
+            __libc_init_array();
+            //Core::callStaticConstructors(); <- replaced by __libc_init_array()
 
             pegasus::core::mainThread.start();
 
-            //__set_CONTROL( __get_CONTROL() | 0x02 );
+            __set_CONTROL(0x0);
             Processor::enableInterrupts();
 
             main();

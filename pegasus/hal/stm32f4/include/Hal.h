@@ -23,12 +23,14 @@
 #include "hal/stm32f4/include/SpiDriver.h"
 #include "hal/stm32f4/include/SpiDevice.h"
 #include "hal/stm32f4/include/UARTDriver.h"
+#include "hal/stm32f4/include/USBSerial.h"
 
 namespace pegasus {
     namespace hal {
         typedef pegasus::hal::stm32f4::Gpio         Gpio;
         typedef pegasus::hal::stm32f4::CoreTimer    CoreTimer;
         typedef pegasus::hal::stm32f4::Core         ArchCore;
+
         typedef pegasus::hal::stm32f4::Timer        Timer;
         typedef pegasus::hal::stm32f4::TimerChannel TimerChannel;
         typedef pegasus::hal::stm32f4::RCOutput     RCOutput;
@@ -39,6 +41,7 @@ namespace pegasus {
         typedef pegasus::hal::stm32f4::SpiDriver  SpiDriver;
 
         typedef pegasus::hal::stm32f4::UARTDriver  UARTDriver;
+        typedef pegasus::hal::stm32f4::USBSerial  USBSerial;
 
         typedef pegasus::hal::stm32f4::InterruptRegister InterruptRegister;
 

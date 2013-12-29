@@ -63,19 +63,16 @@ namespace pegasus
             }
         }
 
-        void L3GD20::getMotion6()
+        void L3GD20::getMotion6(Motion6f* datas)
         {
-
         }
 
-        void L3GD20::getGYRO()
+        void L3GD20::getGYRO(Axisf* axis)
         {
-
         }
 
-        void L3GD20::getACC()
+        void L3GD20::getACC(Axisf* axis)
         {
-
         }
 
         void L3GD20::getZeroOffset()
@@ -94,7 +91,7 @@ namespace pegasus
         void L3GD20::interrupt()
         {
             read();
-            pegasus::hal::InterruptRegister::callService(pegasus::fc::service::ACCGYRO_UPDATE);
+            //pegasus::hal::InterruptRegister::callService(pegasus::fc::service::ACCGYRO_UPDATE);
         }
 
     } /* namespace peripherals */

@@ -15,7 +15,7 @@
 #include <core/include/Defs.h>
 
 #ifndef F_CPU
-#define F_CPU 180000000 // 180 Mhz
+#define F_CPU 168000000 // 180 Mhz
 #endif
 
 #define _BIT(x) (1 << (x))

@@ -14,16 +14,26 @@ namespace pegasus
     namespace fc
     {
 
-        Engine::Engine() {}
+        Engine::Engine() :
+                attitude() {}
 
-        void Engine::init(GyroAccBase* gyroAcc, SonarBase* sonar)
+        void Engine::init(pegasus::hal::TimerBase_t* timer,GyroAccBase* gyroAcc, SonarBase* sonar)
         {
-            _mGyroAcc = gyroAcc;
-            _mSonar = sonar;
+            this->gyroacc = gyroAcc;
+            this->sonar = sonar;
+            _mTimer = timer;
+
 
             initCommunication();
             initMixing(0); // TODO
             initSensors();
+
+
+            // Init Engine Timer
+            _mTimer->disable();
+            _mTimer->setFreq(200); // 200hz
+            _mTimer->enable();
+            pegasus::hal::InterruptRegister::attachTimerInt(this, _mTimer);
         }
 
         void Engine::initMixing(uint8_t frameType)
@@ -63,11 +73,36 @@ namespace pegasus
 
         void Engine::initSensors()
         {
-            _mGyroAcc->init();
-            _mSonar->init();
+            gyroacc->init();
+            sonar->init();
+            //mag->init();
+            //rc->init();
 
-            _mGyroAcc->getZeroOffset();
+            gyroacc->setAutoSampling(true);
         }
+
+        uint8_t Engine::uavlinkReceive(const uavlink_message_t msg)
+        {
+            return 0;
+        }
+
+        /**
+         * Timer interrupt 200hz
+         *
+         * - Sum sensors
+         * - Compute DCM
+         * - Calculate PID
+         * - Write to out (motor, servos, ...)
+         *
+         */
+        void Engine::interrupt()
+        {
+            attitude.update();
+        }
+
+
+
+        Engine engine;
 
     } /* namespace fc */
 } /* namespace pegasus */

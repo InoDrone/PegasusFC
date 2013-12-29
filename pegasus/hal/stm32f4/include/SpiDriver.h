@@ -37,13 +37,16 @@
 #define SPI_BAUDPSC_4         ((uint16_t)0x0008)
 #define SPI_BAUDPSC_8         ((uint16_t)0x0010)
 #define SPI_BAUDPSC_16        ((uint16_t)0x0018)
-#define SPI_BAUDPSC32         ((uint16_t)0x0020)
+#define SPI_BAUDPSC_32        ((uint16_t)0x0020)
 #define SPI_BAUDPSC_64        ((uint16_t)0x0028)
 #define SPI_BAUDPSC_128       ((uint16_t)0x0030)
 #define SPI_BAUDPSC_256       ((uint16_t)0x0038)
 
 #define SPI_LSBFIRST_MSB                ((uint16_t)0x0000)
 #define SPI_LSBFIRST_LSB                ((uint16_t)0x0080)
+
+#define SPI_LOW  SPI_BAUDPSC_128
+#define SPI_HIGH SPI_BAUDPSC_8
 
 namespace pegasus{
     namespace hal {
@@ -81,8 +84,14 @@ namespace pegasus{
                     SpiDriver(SPI_TypeDef* reg, SpiPort spiPort);
 
                     void write(uint8_t* buffer, uint8_t addr, uint16_t size);
+                    void writeByte(uint8_t addr, uint8_t data);
+
+
                     void read(uint8_t* buffer, uint8_t addr, uint16_t size);
+                    void read(volatile uint8_t* buffer, uint8_t addr, uint16_t size);
                     uint8_t sendByte(uint8_t byte);
+
+                    void setSpeed(uint8_t speed);
 
             };
 

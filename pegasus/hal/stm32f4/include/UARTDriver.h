@@ -72,10 +72,8 @@ namespace pegasus {
                     bool open();
                     bool close();
 
-                    uint32_t write(const uint8_t *buffer, uint32_t len);
-                    uint32_t write(const char *msg);
-                    void write(char c);
 
+                    void write(uint8_t c);
                     void receive(uint8_t byte);
 
                 private:

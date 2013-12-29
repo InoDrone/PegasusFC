@@ -12,7 +12,7 @@
 #include "fc/include/Mixing.h"
 #include "fc/include/Engine.h"
 
-#include "peripherals/L3GD20.h"
+#include "peripherals/MPU6000.h"
 #include "peripherals/MaxSonar.h"
 
 #define MOTOR1_PIN pegasus::hal::PORTMAPPING('C', 6, TIM8, pegasus::timer::CHANNEL_1, ESC_SPEED) // C6 (TIM8 CH1)

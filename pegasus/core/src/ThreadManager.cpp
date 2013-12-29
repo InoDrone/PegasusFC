@@ -23,11 +23,6 @@ namespace pegasus {
         {
             // start IdleThread
             pegasus::core::idleThread.start();
-            //pegasus::core::idleThread.start();
-
-            // start hardware timer
-            pegasus::core::mainTimer.init();
-            pegasus::core::mainTimer.start();
 
             _mIsStarted = true;
 
@@ -40,7 +35,7 @@ namespace pegasus {
 
         void ThreadManager::stop()
         {
-            pegasus::core::mainTimer.stop();
+            //pegasus::core::mainTimer.stop();
             _mIsStarted = false;
         }
 

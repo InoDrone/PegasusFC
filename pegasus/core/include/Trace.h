@@ -8,7 +8,11 @@
 #ifndef TRACE_H_
 #define TRACE_H_
 
+
+#include "core/include/Defs.h"
 #include "core/include/ComManager.h"
+#include "core/include/Print.h"
+
 
 namespace pegasus
 {
@@ -20,14 +24,10 @@ namespace pegasus
             public:
                 Trace();
 
-                void log(const char message[]);
-                void debug(const char message[]);
-                void warn(const char message[]);
-                void error(const char message[]);
-
-                void print(uint32_t number);
-                void print(const char message[]);
-                void println();
+                void log(const char *fmt, ...);
+                void debug(const char *fmt, ...);
+                void warn(const char *fmt, ...);
+                void error(const char *fmt, ...);
         };
 
         extern Trace trace;

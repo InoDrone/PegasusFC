@@ -25,20 +25,23 @@ namespace pegasus
                 Gpio miso(_mSpiConfig.MISO.port, _mSpiConfig.MISO.bit);
                 Gpio mosi(_mSpiConfig.MOSI.port, _mSpiConfig.MOSI.bit);
                 Gpio  sck(_mSpiConfig.SCK.port, _mSpiConfig.SCK.bit);
-                miso.mode(Mode::AF_NOPULL);
+                miso.mode(Mode::AF_PD);
                 miso.setAlternateFunction(_mSpiConfig.AF);
-                mosi.mode(Mode::AF_NOPULL);
+                mosi.mode(Mode::AF_PD);
                 mosi.setAlternateFunction(_mSpiConfig.AF);
-                sck.mode(Mode::AF_NOPULL);
+                sck.mode(Mode::AF_PD);
                 sck.setAlternateFunction(_mSpiConfig.AF);
 
-                if (reg == SPI5) {
+                if (reg == SPI1) {
+                    RCC->APB2ENR &= ~(RCC_SPI1); // Reset
+                    RCC->APB2ENR |= RCC_SPI1;
+                } else if (reg == SPI5) {
                     RCC->APB2ENR &= ~(RCC_SPI5); // Reset
                     RCC->APB2ENR |= RCC_SPI5;
                 }
 
                 tmpReg = reg->CR1;
-                tmpReg &= ((uint16_t)0x3040); // Reset register
+                tmpReg &= ((uint16_t)0x3000); // Reset register
                 tmpReg |= (uint16_t)((uint32_t)SPI_MODE_MASTER | SPI_DATASIZE_8B |
                                                SPI_CPOL_LOW | SPI_CPHA_1EDGE |
                                                SPI_NSS_SOFT | SPI_BAUDPSC_8 | SPI_LSBFIRST_MSB);
@@ -48,10 +51,19 @@ namespace pegasus
                 reg->CR1 |= SPI_CR1_SPE; // Enable SPI
             }
 
+            void SpiDriver::setSpeed(uint8_t speed) {
+                uint16_t tmpReg;
+                tmpReg = _mReg->CR1;
+                tmpReg &= ~(0x38); // Reset
+                tmpReg |= speed;
+
+                _mReg->CR1 = tmpReg;
+            }
+
             void SpiDriver::write(uint8_t* buffer, uint8_t addr, uint16_t size)
             {
                 if (size > 1) {
-                    addr |= (uint8_t)SPI_MULTIPLEBYTE_CMD;
+                    //addr |= (uint8_t)SPI_MULTIPLEBYTE_CMD;
                 }
 
                 sendByte(addr);
@@ -62,16 +74,33 @@ namespace pegasus
                 }
             }
 
+            void SpiDriver::writeByte(uint8_t addr, uint8_t data)
+            {
+                sendByte(addr);
+                sendByte(data);
+            }
+
             void SpiDriver::read(uint8_t* buffer, uint8_t addr, uint16_t size)
             {
-                if (size > 1) {
+                /*if (size > 1) {
                     addr |= (uint8_t)(SPI_READWRITE_CMD | SPI_MULTIPLEBYTE_CMD);
                 } else {
                     addr |= (uint8_t)SPI_READWRITE_CMD;
+                }*/
+
+
+                sendByte(addr | SPI_READWRITE_CMD);
+                while (size > 0x00) {
+                    *buffer = sendByte(0x0);
+                    buffer++;
+                    size--;
+                    //buffer++;
                 }
+            }
 
-
-                sendByte(addr);
+            void SpiDriver::read(volatile uint8_t* buffer, uint8_t addr, uint16_t size)
+            {
+                sendByte(addr | SPI_READWRITE_CMD);
                 while (size > 0x00) {
                     *buffer = sendByte(0x0);
                     buffer++;

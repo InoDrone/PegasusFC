@@ -16,7 +16,7 @@ namespace pegasus {
 
         namespace thread {
 
-            enum class State : uint32_t {
+            enum State{
                READY,
                RUNNING,
                WAIT
@@ -28,7 +28,7 @@ namespace pegasus {
             public:
                 Thread(const char* name, Thread_t entry) :
                     _mName(name),
-                    _mState(thread::State::READY)
+                    _mState(thread::READY)
                 {
                     _mEntry = reinterpret_cast<Thread_t>(*entry);
                     _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE / sizeof(uint32_t));
@@ -37,9 +37,9 @@ namespace pegasus {
 
                 Thread(const char* name) :
                     _mName(name),
-                    _mState(thread::State::READY)
+                    _mState(thread::READY)
                 {
-                    _mEntry = nullptr;
+                    _mEntry = 0;
                     _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE / sizeof(uint32_t));
                     init();
                 }
@@ -74,7 +74,7 @@ namespace pegasus {
         template<class Entry_t>
         Thread::Thread(const char* name, Entry_t entry) :
             _mName(name),
-            _mState(thread::State::READY) {
+            _mState(thread::READY) {
             _mEntry = reinterpret_cast<Thread_t>(*entry);
             _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE / sizeof(uint32_t));
 

@@ -26,6 +26,7 @@ namespace pegasus {
                 void interruptServiceHandler();
                 uint32_t ticks();
                 uint32_t millis();
+                void delay(uint32_t ms);
 
             private:
                 pegasus::hal::CoreTimer _mTimer;

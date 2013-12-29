@@ -60,27 +60,48 @@ PEGASUSPERISRCS := $(wildcard $(addprefix $(PEGASUSPERIROOT)/,$(SRCSUFFIXES)))
 PEGASUSPERIOBJS := $(subst $(PEGASUSPERIROOT),$(BUILDROOT),$(PEGASUSPERISRCS))
 PEGASUSPERIOBJS := $(addsuffix .o,$(basename $(PEGASUSPERIOBJS)))
 
+USBSRCS = $(LIB_DIR)/STM32_USB_Device_Library/Core/src/usbd_core.c \
+		$(LIB_DIR)/STM32_USB_VCP/src/usb_bsp.cpp \
+		$(LIB_DIR)/STM32_USB_VCP/src/usbd_desc.c \
+		$(LIB_DIR)/STM32_USB_VCP/src/usbd_cdc_vcp.c \
+		$(LIB_DIR)/STM32_USB_VCP/src/usbd_usr.c \
+       	$(LIB_DIR)/STM32_USB_Device_Library/Core/src/usbd_req.c \
+       	$(LIB_DIR)/STM32_USB_Device_Library/Core/src/usbd_ioreq.c \
+       	$(LIB_DIR)/STM32_USB_Device_Library/Class/cdc/src/usbd_cdc_core.c \
+       	$(LIB_DIR)/STM32_USB_OTG_Driver/src/usb_dcd_int.c \
+		$(LIB_DIR)/STM32_USB_OTG_Driver/src/usb_dcd.c \
+		$(LIB_DIR)/STM32_USB_OTG_Driver/src/usb_core.c
+		
+USBBJS := $(subst $(LIB_DIR), $(BUILDROOT)/lib,$(USBSRCS))
+USBBJS := $(addsuffix .o,$(basename $(USBBJS)))
 
-SRCS = ${PEGASUSSRCS} ${PEGASUSHALSRCS} ${PEGASUSFCSRCS} $(PEGASUSPERISRCS)
-OBJS = ${PEGASUSOBJS} ${PEGASUSHALOBJS} ${PEGASUSFCOBJS} $(PEGASUSPERIOBJS)
+SRCS = ${PEGASUSSRCS} $(USBSRCS) ${PEGASUSHALSRCS} ${PEGASUSFCSRCS} $(PEGASUSPERISRCS)
+OBJS = ${PEGASUSOBJS} $(USBBJS) ${PEGASUSHALOBJS} ${PEGASUSFCOBJS} $(PEGASUSPERIOBJS)
 
+
+INCLUDES += $(LIB_DIR)/STM32_USB_VCP/inc
+INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Class/cdc/inc
+INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Core/inc
+INCLUDES += $(LIB_DIR)/STM32_USB_OTG_Driver/inc
 INCLUDES += $(STM_DIR)/lib
 INCLUDES += $(STM_DIR)/lib/inc
 INCLUDES += $(STM_DIR)/lib/inc/core
 INCLUDES += $(STM_DIR)/lib/inc/peripherals
+INCLUDES += $(LIB_DIR)/uavlink/include
 
 INCLUDES  := $(addprefix -I,$(INCLUDES))
 
-CFLAGS  = -g -Os -Wall -DPEGASUS_STM32 -DUSE_STDPERIPH_DRIVER -DHSE_VALUE=8000000 -DSTM32F429_439xx
+CFLAGS  = -g -Os -Wall -DPEGASUS_STM32 -DUSE_STDPERIPH_DRIVER  -DHSE_VALUE=8000000 -DSTM32F40_41xxx
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4
 CFLAGS += -fsingle-precision-constant -Wdouble-promotion
 CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
-CFLAGS += -ffreestanding -nostdlib
+CFLAGS += -ffreestanding 
+#-nostdlib
 
 CXXFLAGS = -std=gnu++11
 
 .PHONY: $(LIB_FILE)
-all: $(LIB_FILE)
+all: $(LIB_FILE) 
 
 $(LIB_FILE) : $(OBJS)
 	$(AR) -r $@ $(OBJS)
@@ -122,6 +143,16 @@ $(BUILDROOT)/%.o: $(PEGASUSPERIROOT)/%.cpp
 	$(CXX) -c $(DEFINES) $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $^ -o $@
 	
 $(BUILDROOT)/%.o: $(PEGASUSPERIROOT)/%.c
+	@echo %% $(subst $(BUILDROOT)/,,$@)
+	@mkdir -p $(dir $@)
+	$(CC) -c $(DEFINES) $(INCLUDES) $(CFLAGS) $^ -o $@
+	
+$(BUILDROOT)/lib/%.o: $(LIB_DIR)/%.cpp
+	@echo %% $(subst $(BUILDROOT)/,,$@)
+	@mkdir -p $(dir $@)
+	$(CXX) -c $(DEFINES) $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $^ -o $@
+	
+$(BUILDROOT)/lib/%.o: $(LIB_DIR)/%.c
 	@echo %% $(subst $(BUILDROOT)/,,$@)
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEFINES) $(INCLUDES) $(CFLAGS) $^ -o $@

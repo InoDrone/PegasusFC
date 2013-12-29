@@ -3,7 +3,7 @@ AR	=	$(TOOLPATH)/arm-none-eabi-ar
 
 vpath %.c src src/peripherals
 
-CFLAGS  = -DHSE_VALUE=8000000 -DUSE_STDPERIPH_DRIVER -g -O2 -Wall
+CFLAGS  = -DHSE_VALUE=8000000 -DUSE_STDPERIPH_DRIVER -g -O2 -Wall -DSTM32F40_41xxx
 CFLAGS += -mlittle-endian -mthumb -mthumb-interwork -mcpu=cortex-m4
 CFLAGS += -fsingle-precision-constant -Wdouble-promotion
 CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard

@@ -58,10 +58,12 @@ namespace pegasus {
     }
 
     namespace hal {
+        typedef pegasus::hal::TimerBase<TIM_TypeDef> TimerBase_t;
+
         namespace stm32f4 {
 
 
-            class Timer : public pegasus::hal::TimerBase<TIM_TypeDef>
+            class Timer : public pegasus::hal::TimerBase_t
             {
                 public:
                     Timer (TIM_TypeDef* timer);
@@ -71,6 +73,7 @@ namespace pegasus {
                     void setFreq(uint32_t freqHz);
                     void setMod(uint8_t channel, timer::Mode mode);
                     void setValue(uint16_t channel, uint16_t value);
+                    uint8_t getUniqId();
             };
 
             INLINE void Timer::enable()

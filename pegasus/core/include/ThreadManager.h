@@ -28,6 +28,7 @@ namespace pegasus {
                 void yield();
 
                 void addThread(Thread* thread);
+                bool isStarted();
 
                 void contextSwitchInterrupt();
                 Thread* getCurrent();
@@ -42,6 +43,11 @@ namespace pegasus {
 
         INLINE Thread* ThreadManager::getCurrent() {
             return _mCurrentThread;
+        }
+
+        INLINE bool ThreadManager::isStarted()
+        {
+            return _mIsStarted;
         }
 
         extern ThreadManager threadManager;

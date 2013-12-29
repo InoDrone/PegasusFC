@@ -26,7 +26,7 @@ namespace pegasus {
         } /* namespace STM32 */
     } /* namespace arch */
 
-    using CoreTimer = pegasus::hal::stm32f4::CoreTimer;
+    typedef pegasus::hal::stm32f4::CoreTimer CoreTimer;
 } /* namespace Pegasus */
 
 #endif /* PEGASUSHALSTM32CORETIMER_H */

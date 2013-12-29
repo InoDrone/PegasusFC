@@ -1,11 +1,23 @@
-/*
- * InterruptRegister.cpp
+/**
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- *  Created on: 29 nov. 2013
- *      Author: alienx
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  Author: Marc Jacquier <marc@inodrone.com>
+ *  Project: InoDronePegasus
  */
 
 #include "hal/stm32f4/include/InterruptRegister.h"
+#include "hal/stm32f4/include/Processor.h"
 #include "hal/stm32f4/include/Processor.h"
 
 namespace pegasus
@@ -15,7 +27,7 @@ namespace pegasus
         namespace stm32f4
         {
             pegasus::hal::InterruptListener* InterruptRegister::extHandlers[15]; // 15 interrupt
-            pegasus::hal::InterruptListener* InterruptRegister::serviceHandler[pegasus::fc::service::SERVICE_SIZE];
+            pegasus::hal::ServicesListener* InterruptRegister::serviceListener[pegasus::fc::service::SERVICE_SIZE];
             pegasus::hal::InterruptListener* InterruptRegister::timListener[64]; // TODO calc size
             pegasus::hal::ByteListener* InterruptRegister::uartListener[5];
 
@@ -47,9 +59,9 @@ namespace pegasus
                 EXTI->RTSR |= (uint32_t) (0x1 << bit); // Detect on Rising Edge
 
                 // Attach pin to interrupt
-                tmp = ((uint32_t) 0x0F) << (bit * 0x04);
+                tmp = ((uint32_t) 0x0F) << ((bit & 0x03) * 0x04);
                 SYSCFG->EXTICR[bit >> 0x02] &= ~tmp;
-                SYSCFG->EXTICR[bit >> 0x02] |= port << (bit * 0x04);
+                SYSCFG->EXTICR[bit >> 0x02] |= port << ((bit & 0x03) * 0x04);
 
                 if (bit > 4 && bit < 10) {
                     irq = EXTI9_5_IRQn;
@@ -96,19 +108,54 @@ namespace pegasus
                 return true;
             }
 
-            bool InterruptRegister::registerService(pegasus::hal::InterruptListener* listener, pegasus::fc::service::Service serviceId)
+            bool InterruptRegister::attachTimerInt(pegasus::hal::InterruptListener* listener, TimerBase_t* timer)
             {
-                if (serviceHandler[serviceId]) {
-                    return false;
+                uint8_t timerId = timer->getUniqId();
+                uint32_t irq;
+                __IO TIM_TypeDef* reg = timer->getReg();
+
+                reg->DIER |= 0x01; // Enable UIF interrupt to channel
+                if (reg == TIM1) {
+                    irq = TIM1_CC_IRQn;
+                } else if (reg == TIM2) {
+                    irq = TIM2_IRQn;
+                } else if (reg == TIM3) {
+                    irq = TIM3_IRQn;
+                } else if (reg == TIM4) {
+                    irq = TIM4_IRQn;
+                } else if (reg == TIM5) {
+                    irq = TIM5_IRQn;
+                } else if (reg == TIM6) {
+                    irq = TIM6_DAC_IRQn;
+                } else if (reg == TIM7) {
+                    irq = TIM7_IRQn;
+                } else {
+                    return false; // TODO finish
                 }
 
-                serviceHandler[serviceId] = listener;
+                if (timListener[timerId]) return false;
+
+                NVIC->IP[irq] = 0x08 << 0x04; // TODO change to dynamic prio
+                NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
+
+                timListener[timerId] = listener;
                 return true;
             }
 
-            void InterruptRegister::callService(pegasus::fc::service::Service serviceId) {
-                if (serviceHandler[serviceId]) {
-                    pegasus::hal::InterruptListener::trampoline(serviceHandler[serviceId]);
+            bool InterruptRegister::registerService(pegasus::hal::ServicesListener* listener, pegasus::fc::service::Service serviceId)
+            {
+                if (serviceListener[serviceId]) {
+                    return false;
+                }
+
+                serviceListener[serviceId] = listener;
+                return true;
+            }
+
+            void InterruptRegister::callServiceInterrupt( pegasus::fc::service::Service serviceId )
+            {
+                if (serviceListener[serviceId]) {
+                    pegasus::hal::ServicesListener::trampoline(serviceListener[serviceId], serviceId);
                 }
             }
 
@@ -135,12 +182,14 @@ namespace pegasus
                 } else if(reg == UART5) {
                     irq = UART5_IRQn;
                     id = 4;
+                } else {
+                    return false;
                 }
 
                 if (uartListener[id]) return false;
 
                 reg->CR1 |= USART_CR1_RXNEIE; // Enable receive Int
-                NVIC->IP[irq] = 0x0A << 0x04; // TODO change to dynamic prio
+                NVIC->IP[irq] = 0x08 << 0x04; // TODO change to dynamic prio
                 NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
 
                 uartListener[id] = listener;
@@ -160,8 +209,30 @@ namespace pegasus
                         pegasus::hal::ByteListener::trampoline(uartListener[id], byte);
                     }
                     reg->SR &= ~(USART_SR_RXNE); // Clear int flag
-                } else if (reg->SR & USART_SR_TXE) {
+                }/* else if (reg->SR & USART_SR_TXE) {
                     reg->SR &= ~(USART_SR_TXE); // Clear int flag
+                }*/
+                Processor::enableInterrupts();
+            }
+
+            /**
+             * Global Timer interrupt
+             */
+            void InterruptRegister::TIMInt(TIM_TypeDef* reg, uint8_t id)
+            {
+                Processor::disableInterrupts();
+                uint32_t state = ((reg->DIER  & reg->SR) & 0x1F);// 0b11111;
+                uint8_t j=0, bit=0;
+                while (j<5) {
+                    bit = _BIT(j);
+                    if ( (state) & (bit) ) {
+                        if (InterruptRegister::timListener[id+j]) {
+                            pegasus::hal::InterruptListener::trampoline(InterruptRegister::timListener[id+j]);
+                        }
+
+                        reg->SR &= ~(bit);
+                    }
+                    j++;
                 }
                 Processor::enableInterrupts();
             }
@@ -169,6 +240,23 @@ namespace pegasus
             namespace InterruptHandler
             {
                 using namespace pegasus::hal::stm32f4;
+
+                void __attribute__ (( naked )) ServiceCall(void) {
+                    asm volatile(
+                            "push {lr}           \n"
+                            "mrs  r1, PSP        \n"
+                            "ldr  r0, [r1, #24]  \n"
+                            "sub  r0, r0, #2     \n"
+                            "ldrh r0, [r0]       \n"
+                            "and r0, r0, #255    \n"
+                            "bl %[svcHandler]    \n"
+                            "pop {pc}            \n"
+                            : /* no output */
+                            : [svcHandler] "i"(&InterruptRegister::callServiceInterrupt)
+                            : "r0"
+                    );
+
+                }
 
                 void EXTIx() {
                     Processor::disableInterrupts();
@@ -187,38 +275,55 @@ namespace pegasus
                     Processor::enableInterrupts();
                 }
 
+                void TIM1_9Int()
+                {
+                    InterruptRegister::TIMInt(TIM9, 40);//((9-1)*5)
+                }
+
+                void TIM1_10Int()
+                {
+                    InterruptRegister::TIMInt(TIM1, 0);//((1-1)*5) , UP Int TIM1
+                    InterruptRegister::TIMInt(TIM10, 45);//((10-1)*5)
+                }
+
+                void TIM1_11Int()
+                {
+                    InterruptRegister::TIMInt(TIM11, 50);//((11-1)*5)
+                }
+
+                void TIM1CCInt()
+                {
+                    InterruptRegister::TIMInt(TIM1, 0);//((1-1)*5)
+                }
+
                 void TIM2Int()
                 {
-
+                    InterruptRegister::TIMInt(TIM2, 5);
                 }
 
                 void TIM3Int()
                 {
-                    Processor::disableInterrupts();
-                    uint32_t state = ((TIM3->DIER  & TIM3->SR) >> 1) & 0xF;// & 0x5F;
-                    uint8_t initPos = 8, j=0, bit=0;
-                    while (j<4) {
-                        bit = _BIT(j);
-                        if ( (state) & (bit) ) {
-                            if (InterruptRegister::timListener[initPos+j]) {
-                                pegasus::hal::InterruptListener::trampoline(InterruptRegister::timListener[initPos+j]);
-                            }
-
-                            TIM3->SR &= ~(bit << 1);
-                        }
-                        j++;
-                    }
-                    Processor::enableInterrupts();
+                    InterruptRegister::TIMInt(TIM3, 10);
                 }
 
                 void TIM4Int()
                 {
-
+                    InterruptRegister::TIMInt(TIM4, 15); //((4-1)*5)
                 }
 
                 void TIM5Int()
                 {
+                    InterruptRegister::TIMInt(TIM5, 20); //((5-1)*5)
+                }
 
+                void TIM6Int()
+                {
+                    InterruptRegister::TIMInt(TIM6, 25); //((6-1)*5)
+                }
+
+                void TIM7Int()
+                {
+                    InterruptRegister::TIMInt(TIM7, 30); //((7-1)*5)
                 }
 
                 void UART1Int()

@@ -26,7 +26,6 @@
 							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.2045906845" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1271660946" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1081126998" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/opt/microchip/xc32/v1.21/pic32mx/include"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc/core"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc/peripherals"/>
@@ -35,7 +34,6 @@
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1743082235" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.283343965" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/opt/microchip/xc32/v1.21/pic32mx/include"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc/core"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc/peripherals"/>
@@ -44,7 +42,6 @@
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.775079368" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1731942066" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/opt/microchip/xc32/v1.21/pic32mx/include"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc/core"/>
 									<listOptionValue builtIn="false" value="../InoDronePegasus/InoDronePegasus/make/stm32/lib/inc/peripherals"/>
@@ -54,7 +51,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="src|include|fc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="include|fc|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>

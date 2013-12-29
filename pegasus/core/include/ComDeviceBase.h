@@ -22,11 +22,12 @@
 #include "core/include/Defs.h"
 #include "core/include/ComManager.h"
 #include "hal/include/ByteListener.h"
+#include "core/include/Print.h"
 
 namespace pegasus {
     namespace core {
 
-        class ComDeviceBase : public pegasus::hal::ByteListener {
+        class ComDeviceBase : public pegasus::hal::ByteListener, public pegasus::core::io::Print {
             public:
                 ComDeviceBase() :
                     _mId(-1),
@@ -37,9 +38,7 @@ namespace pegasus {
                 virtual bool open() = 0;
                 virtual bool close() = 0;
 
-                virtual uint32_t write(const uint8_t *buffer, uint32_t len) = 0;
-                virtual uint32_t write(const char *msg) = 0;
-                virtual void write(char c) = 0;
+                using Print::write;
 
                 bool isConnected() {
                     return _mConnected;

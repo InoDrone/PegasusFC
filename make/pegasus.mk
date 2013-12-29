@@ -34,7 +34,7 @@ FCINC     := ${SRCROOT}
 ###################################################################
 SRCS = ${FCSRCS}  $(SRCROOT)/platform/src/Pegasus$(PEGASUS_PLATFORM)$(PEGASUS_VERSION).cpp
 OBJS = ${FCSOBJS} $(BUILDROOT)/platform/src/Pegasus$(PEGASUS_PLATFORM)$(PEGASUS_VERSION).o
-INCLUDES = ${FCINC}
+INCLUDES = ${FCINC} ${LIB_DIR}/uavlink/include
 
 ifeq ($(PEGASUS_PLATFORM),PIC32)
 include $(MAKE_DIR)/platform_pic32.mk

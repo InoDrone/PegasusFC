@@ -20,6 +20,7 @@
 #define COMMANAGER_H_
 
 #include "core/include/Defs.h"
+#include "UAVLink.h"
 //#include "core/include/ComDeviceBase.h"
 
 #define COMMANAGER_MAX_DEVICE 2
@@ -36,23 +37,10 @@ namespace pegasus {
                     UAVLINK
                 };
 
-                enum STEP {
-                    STX1,
-                    STX2,
-                    CTX,
-                    LTX,
-                    DTX,
-                    CRC8
-                };
-
                 struct Device {
                         ComDeviceBase* device;
-                        uint8_t  buffer[255];
-                        uint8_t* ptr;
-                        uint8_t step;
+                        uavlink_status status;
                         uint8_t type;
-                        uint8_t crc;
-                        uint16_t len;
                 };
 
                 ComManager();
@@ -62,6 +50,9 @@ namespace pegasus {
                 void write(char c, uint8_t type);
                 void print(const char msg[], uint8_t type);
                 void println(const char msg[], uint8_t type);
+
+                void send(uavlink_message_t msg);
+                void send(uavlink_message_t msg, uint8_t id);
 
             private:
                 friend ComDeviceBase;

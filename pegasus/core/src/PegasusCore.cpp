@@ -32,6 +32,10 @@ namespace pegasus
         {
             pegasus::hal::ArchCore::init();
 
+            // start hardware timer
+            pegasus::core::mainTimer.init();
+            pegasus::core::mainTimer.start();
+
         }
 
         PegasusCore::~PegasusCore()

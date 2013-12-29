@@ -6,6 +6,7 @@
  */
 
 #include "core/include/MainTimer.h"
+#include "core/include/ThreadManager.h"
 
 namespace pegasus {
     namespace core {
@@ -29,12 +30,23 @@ namespace pegasus {
             _mTimer.stop();
         }
 
+        void MainTimer::delay(uint32_t ms)
+        {
+            uint32_t start = _mTicks;
+
+            while( (_mTicks - start) < ms);
+        }
+
         /**
          * MainTimer Interrupt (every 1ms)
          */
         void MainTimer::interruptServiceHandler()
         {
             _mTicks++;
+
+            if (pegasus::core::threadManager.isStarted()) {
+                pegasus::hal::ArchCore::yield();
+            }
         }
     }
 }

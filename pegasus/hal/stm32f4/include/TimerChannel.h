@@ -61,7 +61,7 @@ namespace pegasus {
             {
                 _mTimer->disable();
                 _mTimer->setFreq(freqHz);
-                _mTimer->setMod(_mChannel, timer::Mode::OC);
+                _mTimer->setMod(_mChannel, timer::OC);
                 _mTimer->enable();
             }
 
@@ -69,7 +69,7 @@ namespace pegasus {
             {
                 _mTimer->disable();
                 _mTimer->setFreq(freqHz);
-                _mTimer->setMod(_mChannel, timer::Mode::IC);
+                _mTimer->setMod(_mChannel, timer::IC);
                 _mTimer->enable();
             }
         }

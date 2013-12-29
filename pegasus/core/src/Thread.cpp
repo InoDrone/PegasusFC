@@ -58,9 +58,7 @@ namespace pegasus
         }
 
         void Thread::sleep(uint32_t ms) {
-            uint32_t start = pegasus::core::mainTimer.ticks();
-
-            while( (pegasus::core::mainTimer.ticks() - start) < ms);
+            pegasus::core::mainTimer.delay(ms);
         }
 
     } /* namespace core */

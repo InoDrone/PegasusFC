@@ -39,7 +39,6 @@ namespace pegasus {
 
             class Processor {
                 public:
-                    Processor(void) = delete;
 
                     static void enableInterrupts(void);
                     static void disableInterrupts(void);
@@ -179,7 +178,7 @@ namespace pegasus {
 
         }
 
-        using Processor = pegasus::hal::stm32f4::Processor;
+        typedef pegasus::hal::stm32f4::Processor Processor;
     }
 }
 

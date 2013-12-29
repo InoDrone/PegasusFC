@@ -1,5 +1,5 @@
-F_CPU 		:= 180000000L 
-MCU 		:= STM32F429_439xx
+F_CPU 		:= 168000000L 
+MCU 		:= STM32F40_41xxx
 UPLOADER 	:= dfu_util
 FAMILY		:= cortex-m4
 
@@ -16,6 +16,11 @@ INCLUDES += $(STM_DIR)/lib
 INCLUDES += $(STM_DIR)/lib/inc
 INCLUDES += $(STM_DIR)/lib/inc/core
 INCLUDES += $(STM_DIR)/lib/inc/peripherals
+INCLUDES += $(LIB_DIR)/STM32_USB_VCP/inc
+INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Class/cdc/inc
+INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Core/inc
+INCLUDES += $(LIB_DIR)/STM32_USB_OTG_Driver/inc
+
 LIB_PREFIX = $(STM_DIR)/arm-none-eabi/lib/thumb/cortex-m4/float-abi-hard/fpuv4-sp-d16/
 
 CXX 	= $(TOOLPATH)/arm-none-eabi-g++
@@ -35,13 +40,15 @@ CFLAGS  = -g -O2 -Wall -Wextra -Wabi -mthumb -mcpu=$(FAMILY)
 CFLAGS +=  -fsingle-precision-constant -ffunction-sections -fdata-sections -mfloat-abi=hard -mfpu=fpv4-sp-d16 
 #CFLAGS += -L$(STM_DIR)/lib -lstm32f4
 #-nostdlib
-CXXFLAGS = -std=gnu++11 
+CXXFLAGS = -std=gnu++11
 #-Wl,--start-group -lgcc -lc -lm -Wl,--end-group
 #-fno-rtti -nostdlib -Wall -mfloat-abi=hard -mfpu=fpv4-sp-d16 $(DEFINES)
 
 #CFLAGS += -fno-exceptions -fsigned-char
 
-LDFLAGS =  -nostartfiles -T$(STM_DIR)/STM32F429ZI_FLASH.ld
+#LDFLAGS =  -T$(STM_DIR)/STM32F429ZI_FLASH.ld
+#-nostartfiles
+LDFLAGS =  -T$(STM_DIR)/STM32F4XX.ld
 LDFLAGS += -mthumb -mcpu=$(FAMILY) -mfloat-abi=hard -mfpu=fpv4-sp-d16
 LDFLAGS += -Wl,--gc-sections -Wl,-Map,$(PROJECTMAP) -Wl,--cref -L${LIB_PREFIX}
 
@@ -76,8 +83,9 @@ libSTM32:
 #   $(CXX) $(DEFS) $(INCLUDE) $(CFLAGS) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lm
 
 $(PROJECTELF): $(OBJS)
+	$(eval PEGASUSLIB_OBJ := $(shell find $(PEGASUS_DIR)/build/lib/ -type f -name '*.o'))
 	$(eval PEGASUS_OBJ := $(wildcard $(PEGASUS_DIR)/build/*.o))
-	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $(PEGASUS_OBJ) $^ -o $@ -lgcc -lm -lc
+	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $(PEGASUSLIB_OBJ) $(PEGASUS_OBJ) $^ -o $@ -lgcc -lm -lc
 
 $(PROJECTHEX): $(PROJECTELF)
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
@@ -94,7 +102,7 @@ $(BUILDROOT)/%.o: $(SRCROOT)/%.cpp
 $(BUILDROOT)/%.o: $(SRCROOT)/%.c
 	@echo %% $(subst $(BUILDROOT)/,,$@)
 	@mkdir -p $(dir $@)
-	$(CXX) -c $(DEFINES) $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $^ -o $@
+	$(CXX) -c $(DEFINES) $(INCLUDES) $(CFLAGS) $^ -o $@
 	
 
 clean:

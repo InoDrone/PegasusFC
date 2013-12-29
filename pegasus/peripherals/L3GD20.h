@@ -59,9 +59,9 @@ namespace pegasus
             public:
                 L3GD20(pegasus::hal::SpiDeviceBase_t* spiDevice);
 
-                void getMotion6();
-                void getGYRO();
-                void getACC();
+                void getMotion6(Motion6f*);
+                void getGYRO(Axisf*);
+                void getACC(Axisf*);
 
                 void interrupt();
 

@@ -36,15 +36,23 @@ namespace pegasus {
               extern void DefaultHandler(void);
 
               extern void EXTIx(void);
+              extern void TIM1_9Int(void);
+              extern void TIM1_10Int(void);
+              extern void TIM1_11Int(void);
+              extern void TIM1CCInt(void);
               extern void TIM2Int(void);
               extern void TIM3Int(void);
               extern void TIM4Int(void);
               extern void TIM5Int(void);
+              extern void TIM6Int(void);
+              extern void TIM7Int(void);
               extern void UART1Int(void);
               extern void UART2Int(void);
               extern void UART3Int(void);
               extern void UART4Int(void);
               extern void UART5Int(void);
+
+              extern void OTGFSInt(void);
             }
 
 
@@ -127,13 +135,13 @@ namespace pegasus {
                     /* EXTI9_5_IRQHandler        External Line[9:5]s  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::EXTIx),
                     /* TIM1_BRK_TIM9_IRQHandler         TIM1 Break and TIM9     */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::TIM1_9Int),
                     /* TIM1_UP_TIM10_IRQHandler         TIM1 Update and TIM10     */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::TIM1_10Int),
                     /* TIM1_TRG_COM_TIM11_IRQHandler    TIM1 Trigger and Commutation and TIM11     */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::TIM1_11Int),
                     /* TIM1_CC_IRQHandler               TIM1 Capture/Compare INT    */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::TIM1CCInt),
                     /* TIM2_IRQHandler */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::TIM2Int),
                     /* TIM3_IRQHandler */
@@ -187,9 +195,9 @@ namespace pegasus {
                     /* UART5_IRQHandler  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::UART5Int),
                     /* TIM6_DAC_IRQHandler  */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::TIM6Int),
                     /* TIM7_IRQHandler  */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::TIM7Int),
                     /* DMA2_Stream0_IRQHandler  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* DMA2_Stream1_IRQHandler  */
@@ -213,7 +221,7 @@ namespace pegasus {
                     /* CAN2_SCE_IRQHandler  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* OTG_FS_IRQHandler  */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::OTGFSInt),
                     /* DMA2_Stream5_IRQHandler  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* DMA2_Stream6_IRQHandler  */

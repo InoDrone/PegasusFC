@@ -25,13 +25,11 @@ void FlightController::run()
     uint32_t counter = 0;
     _pFunc = &FlightController::waitingMode;
 
-    pegasus::hal::Gpio led(Port::G, Pin::PIN13);
-    led.mode(Mode::OUTPUT);
 
     while(1) {
 
         /* if (rc.throttle == MIN_THROTTLE) {
-            if (rc.pitch == MIN_PITCH_CMD && rc.yaw == MIN_YAW_CMD && counter >= 40) { // for 2 second
+            if (rc.pitch == MIN_PITCH_CMD && rc.yaw == MIN_YAW_CMD && counter >= 60) { // for 3 second
                 counter = 0;
                 _pFunc = &FlightController::flightMode;
             } else if (rc.pitch

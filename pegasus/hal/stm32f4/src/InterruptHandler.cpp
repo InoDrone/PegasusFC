@@ -46,11 +46,6 @@ namespace pegasus {
                     while (true) {}
                   }
 
-                  void ServiceCall(void) {
-
-                    while (true) {}
-                  }
-
                   void DebugMon(void) {
                     while (true) {}
                   }

@@ -63,18 +63,18 @@ namespace pegasus {
                         break;
                     case gpio::Mode::AF_NOPULL:
                         moder |= (0x02 << (_mBitNumber * 2));
-                        ospeedr |= (gpio::Speed::FAST_50MHz << (_mBitNumber * 2));
+                        ospeedr |= (gpio::Speed::HIGH_100MHz << (_mBitNumber * 2));
                         // Input Type PP
                         // PuPd NOPULL
                         break;
                     case gpio::Mode::AF_PU:
                         moder |= (0x02 << (_mBitNumber * 2));
-                        ospeedr |= (gpio::Speed::FAST_50MHz << (_mBitNumber * 2));
+                        ospeedr |= (gpio::Speed::HIGH_100MHz << (_mBitNumber * 2));
                         pupdr   |= (gpio::PuPd::PULL_UP  << (_mBitNumber * 2));
                         break;
                     case gpio::Mode::AF_PD:
                         moder |= (0x02 << (_mBitNumber * 2));
-                        ospeedr |= (gpio::Speed::FAST_50MHz << (_mBitNumber * 2));
+                        ospeedr |= (gpio::Speed::HIGH_100MHz << (_mBitNumber * 2));
                         pupdr   |= (gpio::PuPd::PULL_DOWN  << (_mBitNumber * 2));
                         break;
                     case gpio::Mode::INPUT_ANALOG:

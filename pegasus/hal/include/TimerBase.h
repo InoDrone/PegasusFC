@@ -32,6 +32,8 @@ namespace pegasus {
                   virtual void setMod(uint8_t channel, timer::Mode mode) = 0;
                   virtual void setValue(uint16_t channel, uint16_t value) = 0;
 
+                  virtual uint8_t getUniqId() = 0;
+
                   Reg_t* getReg();
 
               protected:

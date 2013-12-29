@@ -18,6 +18,8 @@
 
 #include "core/include/ComManager.h"
 #include "core/include/ComDeviceBase.h"
+#include "fc/include/Engine.h"
+#include <cstdio>
 
 namespace pegasus
 {
@@ -37,10 +39,7 @@ namespace pegasus
             device->addReceiver(this, countDevice);
             _mDevices[countDevice].device = device;
             _mDevices[countDevice].type = ComManager::DEBUG;
-            _mDevices[countDevice].ptr = &_mDevices[countDevice].buffer[0];
-            _mDevices[countDevice].step = ComManager::STX1;
-            _mDevices[countDevice].crc = 0;
-            _mDevices[countDevice].len = 0;
+            uavlink_init(&_mDevices[countDevice].status);
             device->open();
 
             countDevice++;
@@ -76,66 +75,70 @@ namespace pegasus
             }
         }
 
+        void ComManager::send(uavlink_message_t msg)
+        {
+            uint8_t buffer[255];
+            uavlink_get_buffer(buffer, msg);
+
+            print((const char*)buffer, ComManager::UAVLINK);
+
+        }
+
+        void ComManager::send(uavlink_message_t msg, uint8_t id)
+        {
+            if (!_mDevices[id].device->isConnected() || !_mDevices[id].type == ComManager::UAVLINK) {
+                return;
+            }
+
+            uint8_t buffer[255];
+            uavlink_get_buffer(buffer, msg);
+
+            _mDevices[id].device->write((const char*)buffer);
+
+        }
+
         void ComManager::receive(uint8_t byte, uint8_t id) {
 
-            Device* d = &_mDevices[id];
-            switch(d->step) {
-                case STX1:
-                    if (byte == 0xFF) {
-                        d->step = STX2;
+            uavlink_message_t msg;
+            uint8_t ack;
+            if (uavlink_parse(byte, &_mDevices[id].status, &msg) == UAVLINK_VALID_MSG) {
+                if (msg.cmd == UAVLINK_STATE) {
+                    switch (msg.datas[0]) {
+                        case UAVLINK_PING: // Kikoolol it's Me !
+                            if (_mDevices[id].type == ComManager::DEBUG) {
+                                _mDevices[id].device->write("ACK\r\n");
+                            } else {
+                                send(uavlink_generate_ack(msg.cmd, ack), id);
+                            }
+                            break;
+                        case UAVLINK_DEBUG: // to Debug/Shell
+                            _mDevices[id].type = ComManager::DEBUG;
+                            _mDevices[id].device->write("DBG\r\n");
+                            break;
+                        case UAVLINK_START: // to UAVLink
+                            _mDevices[id].type = ComManager::UAVLINK;
+                            send(uavlink_generate_ack(msg.cmd, 1), id);
+                            break;
                     }
-                    break;
-                case STX2:
-                    if (byte == 0xFF) {
-                        d->ptr = &d->buffer[0];
-                        d->step = CTX;
-                    } else {
-                        d->step = STX1;
-                    }
-                    break;
-                case CTX:
-                    if (byte == 0xCC) { // KikooLool It's Me
-                        d->step = STX1;
-                        d->device->write("ACK\r\n");
-                    } else if (byte == 0xDD) { // Switch To debug Mode
-                        d->step = STX1;
-                        d->device->write("DBG\r\n");
-                        d->type = ComManager::DEBUG;
-                    } else if (byte == 0xEE) { // Switch To UAVLink Mode
-                        d->step = STX1;
-                        d->device->write("UVL\r\n");
-                        d->type = ComManager::UAVLINK;
-                    } else {
-                        *d->ptr++ = byte;
-                        d->crc ^= byte;
-                        d->step = LTX;
-                    }
-                    break;
-                case LTX:
-                    *d->ptr++ = byte;
-                    d->crc ^= byte;
-                    d->len = byte;
-                    if (d->len <= 0) {
-                        d->step = STX1;
-                    } else {
-                        d->step = DTX;
-                    }
-                    break;
-                case DTX:
-                    *d->ptr++ = byte;
-                    d->crc ^= byte;
-                    d->len--;
-                    if (d->len == 0) {
-                        d->step = CRC8;
-                    }
-                    break;
-                case CRC8:
-                    if (d->crc == byte) {
-                        println("Data receive OK", 0);
-                    }
-                    d->step = STX1;
-                    break;
+
+                    return;
+                }
+
+                ack = pegasus::fc::engine.uavlinkReceive(msg);
+                send(uavlink_generate_ack(msg.cmd, ack), id);
+
             }
+        }
+
+        /* Syscall for printf etc ... */
+        extern "C" {
+            int _write(int file, char *ptr, int len) {
+                        int i;
+                        for(i = 0;i < len;i++) {
+                                com.write(ptr[i], 0);
+                        }
+                        return len;
+            };
         }
 
     } /* namespace core */

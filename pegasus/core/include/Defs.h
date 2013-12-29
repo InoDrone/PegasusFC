@@ -8,7 +8,12 @@
 #ifndef DEFS_H_
 #define DEFS_H_
 
-#include <stdint.h>
+#include <cstdint>
+#include <cstdlib>
+#include <cstdarg>
+#include <cstdio>
+#include <cerrno>
+#include <cstring>
 
 namespace pegasus {
 
@@ -22,6 +27,15 @@ namespace pegasus {
 }
 
 #define INLINE inline __attribute__((always_inline))
+
+
+#define ONE_RAD 0.01745329252f
+#define ONE_DEG 57.2957795131f
+
+#define M_PI_F       3.14159265358979323846264338328f
+#define DEG2RAD(deg) (deg * 0.01745329252f)
+#define RAD2DEG(rad) (rad * 57.2957795131f)
+
 
 
 /****************************************************

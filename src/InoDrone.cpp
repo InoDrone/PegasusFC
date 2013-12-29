@@ -9,13 +9,13 @@
 #define PEGASUS_STM32
 #endif
 
-
 #include "Config.h"
 
 #include <core/include/Pegasus.h>
 #include <core/include/ThreadManager.h>
 #include <fc/include/Engine.h>
 #include "FlightController.h"
+#include "Telemetry.h"
 
 
 #define LED_YELLOW 	Port2Pin('C', 3)
@@ -43,15 +43,11 @@ void btnPressed()
 
 int main(void)
 {
-
-
-    // Init platform specifique (motor, com, etc ..)
     initPlatform();
 
-
-
-    // Start Flight Control Thread
     fc.start(); // start Fc Thread
+    telemetry.start(); // Start Telemetry Thread
+
     // Start Leds / FailSafe Manager Thread
 
     // Starte Main scheduler

@@ -45,7 +45,7 @@ namespace pegasus {
         {
             _mCount = 0;
             for (uint16_t i=0;i<size();++i) {
-                _mObjs[i] = nullptr;
+                _mObjs[i] = 0;
             }
         }
 

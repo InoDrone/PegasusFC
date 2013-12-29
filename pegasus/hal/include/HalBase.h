@@ -13,8 +13,6 @@ namespace pegasus {
 
         class HalBase {
             public:
-                HalBase(void) = delete;
-
                static void init();
                static void reset();
         };

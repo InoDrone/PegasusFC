@@ -34,7 +34,11 @@ namespace pegasus
             void UARTDriver::init()
             {
 
-                if (_mReg == USART3) {
+                if (_mReg == USART1) {
+                    RCC->APB2ENR |= RCC_APB2_USART1;
+                } else if (_mReg == USART2) {
+                    RCC->APB1ENR |= RCC_APB1_USART2;
+                } else if (_mReg == USART3) {
                     RCC->APB1ENR |= RCC_APB1_USART3;
                 }
 
@@ -106,27 +110,7 @@ namespace pegasus
                 _mReg->BRR = (uint16_t)tmp;
             }
 
-            uint32_t UARTDriver::write(const uint8_t *buffer, uint32_t len)
-            {
-                uint32_t i = 0;
-                while ( (_mReg->SR & USART_SR_TXE) && (i < len)) {
-                    _mReg->DR = buffer[i++];
-                }
-
-                return i;
-            }
-
-            uint32_t UARTDriver::write(const char *msg)
-            {
-                while(*msg) {
-                    while ( !(_mReg->SR & USART_SR_TC) );
-                    _mReg->DR = *msg++;
-                }
-
-                return 1;
-            }
-
-            void UARTDriver::write(char c) {
+            void UARTDriver::write(uint8_t c) {
                 while ( !(_mReg->SR & USART_SR_TC) );
                 _mReg->DR = c;
             }
@@ -136,16 +120,6 @@ namespace pegasus
 
                 ComDeviceBase::receive(byte);
             }
-
-            /*uint32_t UARTDriver::write(const uint8_t buffer[])
-            {
-                uint32_t i;
-                while ( (_mReg->SR & USART_SR_TXE) && (*buffer)) {
-                    _mReg->DR = *buffer++;
-                }
-
-                return i;
-            }*/
 
         } /* namespace stm32f4 */
     } /* namespace hal */

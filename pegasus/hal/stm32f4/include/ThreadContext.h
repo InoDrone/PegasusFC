@@ -38,7 +38,7 @@ namespace pegasus {
             }
         }
 
-        using ThreadContext = pegasus::hal::stm32f4::ThreadContext;
+        typedef pegasus::hal::stm32f4::ThreadContext ThreadContext;
     }
 }
 
