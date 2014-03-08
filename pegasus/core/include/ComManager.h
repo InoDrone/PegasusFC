@@ -51,8 +51,11 @@ namespace pegasus {
                 void print(const char msg[], uint8_t type);
                 void println(const char msg[], uint8_t type);
 
-                void send(uavlink_message_t msg);
+                void send(const uavlink_message_t msg);
                 void send(uavlink_message_t msg, uint8_t id);
+
+                void ping();
+                bool isActive();
 
             private:
                 friend ComDeviceBase;
@@ -61,6 +64,8 @@ namespace pegasus {
                 Device  _mDevices[COMMANAGER_MAX_DEVICE];
 
                 uint8_t countDevice;
+
+                uint32_t lastPong;
         };
 
         extern ComManager com;

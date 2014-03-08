@@ -21,10 +21,14 @@
 
 #include "core/include/ComDeviceBase.h"
 #include "hal/stm32f4/include/Gpio.h"
-#include "usbd_cdc_vcp.h"
+
+#include "usbd_cdc_core.h"
 
 extern "C" {
-    extern uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len);
+
+
+    //extern uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
+    //extern void initUSBSerial(USB_OTG_CORE_HANDLE* pDev);
 }
 
 namespace pegasus
@@ -45,7 +49,7 @@ namespace pegasus
 
                     void write(uint8_t c);
 
-                    static USB_OTG_CORE_HANDLE  USB_OTG_dev;
+                    //static USB_OTG_CORE_HANDLE  USB_OTG_dev;
 
                 private:
                     Gpio _mDiscPin;

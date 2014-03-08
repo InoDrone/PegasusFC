@@ -10,13 +10,16 @@
 
 #define PID_I_GUARD 1000.0f
 
+#include "fc/include/Config.h"
+
 namespace pegasus {
     namespace fc {
 
         class Pid {
             public:
+                Pid();
                 Pid(float kP, float kI, float kD, float kPStab, float kIStab);
-                ~Pid();
+                ~Pid() {};
 
                 void resetIntegral();
 
@@ -36,6 +39,8 @@ namespace pegasus {
 
                 float getKpStab();
                 float getKiStab();
+
+                void setConfig( PIDConfig_t lvl, PIDConfig_t rate);
 
             private:
                     float kP;

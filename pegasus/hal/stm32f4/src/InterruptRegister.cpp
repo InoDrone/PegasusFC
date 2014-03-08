@@ -71,7 +71,7 @@ namespace pegasus
                     irq = EXTI0_IRQn + bit;
                 }
 
-                NVIC->IP[irq] = 0x0F << 0x04; // TODO change to dynamic prio
+                NVIC->IP[irq] = HIGH_PRIORITY_SENSOR; // TODO change to dynamic prio
                 NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
 
                 extHandlers[bit] = listener;
@@ -97,11 +97,19 @@ namespace pegasus
                     irq = TIM4_IRQn;
                 } else if (reg == TIM5) {
                     irq = TIM5_IRQn;
+                } else if (reg == TIM6) {
+                    irq = TIM6_DAC_IRQn;
+                } else if (reg == TIM7) {
+                    irq = TIM7_IRQn;
+                } else if (reg == TIM8) {
+                    irq = TIM8_CC_IRQn;
+                } else if (reg == TIM9) {
+                    irq = TIM1_BRK_TIM9_IRQn;
                 } else {
                     return false; // TODO finish
                 }
 
-                NVIC->IP[irq] = 0x0A << 0x04; // TODO change to dynamic prio
+                NVIC->IP[irq] = HIGH_PRIORITY_RC; // TODO change to dynamic prio
                 NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
 
                 timListener[timerId] = listener;
@@ -129,13 +137,19 @@ namespace pegasus
                     irq = TIM6_DAC_IRQn;
                 } else if (reg == TIM7) {
                     irq = TIM7_IRQn;
+                } else if (reg == TIM8) {
+                    irq = TIM8_UP_TIM13_IRQn;
+                } else if (reg == TIM9) {
+                    irq = TIM1_BRK_TIM9_IRQn;
+                } else if (reg == TIM10) {
+                    irq = TIM1_UP_TIM10_IRQn;
                 } else {
                     return false; // TODO finish
                 }
 
                 if (timListener[timerId]) return false;
 
-                NVIC->IP[irq] = 0x08 << 0x04; // TODO change to dynamic prio
+                NVIC->IP[irq] = MEDIUM_PRIORITY_FC; // TODO change to dynamic prio
                 NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
 
                 timListener[timerId] = listener;
@@ -189,7 +203,7 @@ namespace pegasus
                 if (uartListener[id]) return false;
 
                 reg->CR1 |= USART_CR1_RXNEIE; // Enable receive Int
-                NVIC->IP[irq] = 0x08 << 0x04; // TODO change to dynamic prio
+                NVIC->IP[irq] = LOW_PRIORITY; // TODO change to dynamic prio
                 NVIC->ISER[irq >> 0x05] = (uint32_t)0x01 << (irq & (uint8_t)0x1F);
 
                 uartListener[id] = listener;
@@ -202,7 +216,7 @@ namespace pegasus
              */
             void InterruptRegister::UARTInt(USART_TypeDef* reg, uint8_t id)
             {
-                Processor::disableInterrupts();
+                Processor::setBasePri(MEDIUM_PRIORITY);
                 if (reg->SR & USART_SR_RXNE) {
                     uint8_t byte = reg->DR;
                     if (uartListener[id]) {
@@ -212,7 +226,7 @@ namespace pegasus
                 }/* else if (reg->SR & USART_SR_TXE) {
                     reg->SR &= ~(USART_SR_TXE); // Clear int flag
                 }*/
-                Processor::enableInterrupts();
+                Processor::setBasePri(0);
             }
 
             /**
@@ -220,7 +234,7 @@ namespace pegasus
              */
             void InterruptRegister::TIMInt(TIM_TypeDef* reg, uint8_t id)
             {
-                Processor::disableInterrupts();
+                Processor::setBasePri(MEDIUM_PRIORITY_FC);
                 uint32_t state = ((reg->DIER  & reg->SR) & 0x1F);// 0b11111;
                 uint8_t j=0, bit=0;
                 while (j<5) {
@@ -234,7 +248,7 @@ namespace pegasus
                     }
                     j++;
                 }
-                Processor::enableInterrupts();
+                Processor::setBasePri(0);
             }
 
             namespace InterruptHandler
@@ -259,7 +273,7 @@ namespace pegasus
                 }
 
                 void EXTIx() {
-                    Processor::disableInterrupts();
+                    Processor::setBasePri(HIGH_PRIORITY_SENSOR);
                     uint32_t state = EXTI->PR & EXTI->IMR;
                     uint32_t bit = 0;
                     uint8_t j = 0;
@@ -272,7 +286,7 @@ namespace pegasus
                     }
 
                     EXTI->PR = 0xFFFFF; // Clear 16 bit
-                    Processor::enableInterrupts();
+                    Processor::setBasePri(0);
                 }
 
                 void TIM1_9Int()

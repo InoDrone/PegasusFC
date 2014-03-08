@@ -18,9 +18,10 @@ namespace pegasus
 
         MPU6000::MPU6000(pegasus::hal::SpiDeviceBase_t* spiDevice) :
             _mSpi(spiDevice),
-            _mAccRangeScale(MPU6000_ONE_G / MPU6000_ACC_SENS_4G),
+            _mAccRangeScale(ONEG_MSS / MPU6000_ACC_SENS_4G),
             _mGyroRangeScale(ONE_RAD / MPU6000_GYRO_SENS_1000),
-            _mGyroRangeScaleRadSec((1000.0f / 180.0f) * M_PI_F) {
+            _mGyroRangeScaleRadSec((1000.0f / 180.0f) * M_PI_F),
+            _mOffsetCalculated(false) {
 
             _mAccScale = {
                     0.0f,
@@ -44,7 +45,7 @@ namespace pegasus
 
 
 
-        void MPU6000::init()
+        bool MPU6000::init()
         {
             pegasus::core::trace.log("[MPU6000] Initialization");
             _mAutoSampling = false;
@@ -60,7 +61,7 @@ namespace pegasus
                 pegasus::core::trace.log("[MPU6000] ping OK");
             } else {
                 pegasus::core::trace.log("MPU6000 Error");
-                return;
+                return false;
             }
 
             _mSpi->read(&buffer, MPU6000_RA_PRODUCT_ID, 1);
@@ -117,6 +118,8 @@ namespace pegasus
             );
 
             pegasus::core::trace.log("[MPU6000] Initialization done");
+
+            return true;
         }
 
         void MPU6000::read()
@@ -139,6 +142,10 @@ namespace pegasus
             _mSensors.acc.x = ((_mDatas.val.acc.x * _mAccRangeScale) - _mAccScale.offsetX) * _mAccScale.scaleX;
             _mSensors.acc.y = ((_mDatas.val.acc.y * _mAccRangeScale) - _mAccScale.offsetY) * _mAccScale.scaleY;
             _mSensors.acc.z = ((_mDatas.val.acc.z * _mAccRangeScale) - _mAccScale.offsetZ) * _mAccScale.scaleZ;
+            if (_mOffsetCalculated) {
+                _mSensors.acc.z += ONEG_MSS;
+            }
+
 
             _mSensors.gyro.x = ((_mDatas.val.gyro.x * _mGyroRangeScale) - _mGyroScale.offsetX) * _mGyroScale.scaleX;
             _mSensors.gyro.y = ((_mDatas.val.gyro.y * _mGyroRangeScale) - _mGyroScale.offsetY) * _mGyroScale.scaleY;
@@ -162,6 +169,7 @@ namespace pegasus
 
         void MPU6000::getZeroOffset()
         {
+
             uint16_t cnt = 500;
             float tmpOffset[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
             for (uint16_t i=0;i<cnt;i++) {
@@ -187,6 +195,8 @@ namespace pegasus
             _mGyroScale.offsetY = (float)tmpOffset[4] / 500.0f;
             _mGyroScale.offsetZ = (float)tmpOffset[5] / 500.0f;
 
+            _mOffsetCalculated = true;
+
         }
 
         void MPU6000::calibration()
@@ -201,8 +211,8 @@ namespace pegasus
         {
             if (_mAutoSampling) {
                 read();
+                CALLSV(pegasus::fc::service::DRDY_ACCGYRO);
             }
-            CALLSV(pegasus::fc::service::DRDY_ACCGYRO);
         }
 
     } /* namespace peripherals */

@@ -31,7 +31,7 @@ namespace pegasus {
                     _mState(thread::READY)
                 {
                     _mEntry = reinterpret_cast<Thread_t>(*entry);
-                    _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE / sizeof(uint32_t));
+                    _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE);// / sizeof(uint32_t));
                     init();
                 }
 
@@ -40,7 +40,7 @@ namespace pegasus {
                     _mState(thread::READY)
                 {
                     _mEntry = 0;
-                    _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE / sizeof(uint32_t));
+                    _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE);// / sizeof(uint32_t));
                     init();
                 }
 
@@ -76,7 +76,7 @@ namespace pegasus {
             _mName(name),
             _mState(thread::READY) {
             _mEntry = reinterpret_cast<Thread_t>(*entry);
-            _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE / sizeof(uint32_t));
+            _mStack.top = (uint32_t*)_mStack.stack  + (STACK_SIZE);// / sizeof(uint32_t));
 
             init();
 

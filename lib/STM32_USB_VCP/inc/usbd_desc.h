@@ -24,13 +24,9 @@
 #ifndef __USB_DESC_H
 #define __USB_DESC_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_def.h"
-#include <stdint.h>
+
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
@@ -80,7 +76,7 @@ extern  uint8_t USBD_StrDesc[USB_MAX_STR_DESC_SIZ];
 extern  uint8_t USBD_OtherSpeedCfgDesc[USB_LEN_CFG_DESC];
 extern  uint8_t USBD_DeviceQualifierDesc[USB_LEN_DEV_QUALIFIER_DESC];
 extern  uint8_t USBD_LangIDDesc[USB_SIZ_STRING_LANGID];
-extern  const USBD_DEVICE USR_desc;
+extern  USBD_DEVICE USR_desc;
 /**
   * @}
   */
@@ -105,10 +101,6 @@ uint8_t *     USBD_USR_USRStringDesc (uint8_t speed, uint8_t idx , uint16_t *len
 /**
   * @}
   */
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif /* __USBD_DESC_H */
 

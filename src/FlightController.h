@@ -18,7 +18,7 @@ class FlightController : public Thread
         FlightController();
         ~FlightController();
 
-        static void calibrationMode();
+        static void calibrateESC();
         static void waitingMode();
         static void flightMode();
 

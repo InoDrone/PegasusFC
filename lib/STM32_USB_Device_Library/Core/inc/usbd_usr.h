@@ -23,13 +23,8 @@
 #ifndef __USBD_USR_H__
 #define __USBD_USR_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_core.h"
-
 
 
 /** @addtogroup USBD_USER
@@ -50,9 +45,9 @@ extern "C" {
   * @{
   */ 
 
-extern const  USBD_Usr_cb_TypeDef USR_cb;
-extern const  USBD_Usr_cb_TypeDef USR_FS_cb;
-extern const  USBD_Usr_cb_TypeDef USR_HS_cb;
+extern  USBD_Usr_cb_TypeDef USR_cb;
+extern  USBD_Usr_cb_TypeDef USR_FS_cb;
+extern  USBD_Usr_cb_TypeDef USR_HS_cb;
 
 
 
@@ -118,10 +113,6 @@ void     USBD_USR_HS_DeviceDisconnected(void);
 /**
   * @}
   */ 
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif /*__USBD_USR_H__*/
 

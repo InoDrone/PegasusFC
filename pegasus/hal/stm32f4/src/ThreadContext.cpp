@@ -41,7 +41,7 @@ namespace pegasus {
                 *--stk = (uint32_t) thread;             // R1 //(second function argument)
                 *--stk = (uint32_t) func;               // R0 //(first function argument)
 
-                *--stk = 0xFFFFFFFD;                    // LR
+                *--stk = 0xFFFFFFFD;                    // INIT EXC_RETURN
 
                 *--stk = 0x0;                // R11
                 *--stk = 0x0;                // R10
@@ -66,63 +66,68 @@ namespace pegasus {
             }
 
             namespace InterruptHandler {
-                void PendService(void)
+                void __attribute__ (( naked ))  PendService(void)
                 {
-//                    (*((volatile unsigned long *) 0xE000ED04)) = (1 << 0x1B); // Clear pendSV bit
 
                     if (!_sStack) {
                         _sStack = pegasus::core::threadManager.getCurrent()->getContext().getPStack();
 
-                        asm(
-                                "ldr r2, %[pps]                      \n"
-                                "ldr r0, [r2]                        \n"
-                                "ldmia r0!, {r4-r11, lr}            \n"// Pop the core registers.
+                        asm volatile(
+                                "ldr r3, ppStack2                    \n"
+                                "ldr r1, [r3]                        \n"
+                                "ldr r0, [r1]                        \n"
+                                "ldmia r0!, {r4-r11, r14}            \n" // Pop the core registers AND EXC_RETURN.
                                 "                                    \n"
                                 "MSR PSP, r0                         \n"
-                                "orr lr,lr, #4                       \n"
                                 "bx lr                               \n"
-                                : /* out */
-                                : /* in */
-                                  [pps] "m"(_sStack)
-                                : "memory", "cc"
+                                "                                    \n"
+                                "       .align 2                     \n"
+                                "ppStack2: .word _sStack             \n" // .word _ZN7pegasus3hal7stm32f413ThreadContext7_sStackE
                         );
 
 
                     }
 
                     asm volatile (
-                            // Registers R0-R3 are free to use. LR = R14.
-                            "       mrs     r12, psp                    \n"// Get the main stack in R12
-                            "       stmdb   r12!, {r4-r11, lr}          \n"// push other register
+                            "       mrs     r0, psp                     \n"// Get the main stack in R12
                             "                                           \n"
                             "       ldr     r3, ppStack                 \n"// Get the address of sStack
                             "       ldr     r2, [r3]                    \n"
-                            "       str     r12,[r2]                    \n"
                             "                                           \n"
-                            "       stmdb sp!, {r3, lr}                 \n" // Save EXC_RETURN LR
+                            "       tst r14, #0x10                      \n" // Save FPU if task using
+                            "       it eq                               \n"
+                            "       vstmdbeq r0!, {s16-s31}             \n"
                             "                                           \n"
+                            "       stmdb   r0!, {r4-r11, r14}          \n" // push other register
                             "                                           \n"
-                            "       bl %[csw]                           \n"// bl contextSwitch
+                            "       str     r0,[r2]                     \n" // Save new top stack
                             "                                           \n"
-                            "                                           \n"
-                            "       ldmia sp!, {r3, lr}                 \n" // Restore EXC_RETURN LR
+                            "       stmdb sp!, {r3}                     \n" // Save
+                            "       mov r0, #128                        \n"
+                            "       msr basepri, r0                     \n"
+                            "       bl %[csw]                           \n" // bl contextSwitch
+                            "       mov r0, #0                          \n"
+                            "       msr basepri, r0                     \n"
+                            "       ldmia sp!, {r3}                     \n" // Restore
                             "                                           \n"
                             "       ldr r1,  [r3]                       \n"// At *ms_ppStack is the new stack pointer.
                             "       ldr r0,  [r1]                       \n"// At *ms_ppStack is the new stack pointer.
                             "                                           \n"
-                            "       ldmia r0!, {r4-r11, LR}             \n"// Pop the core registers.
-                            "                                           \n"
+                            "       ldmia r0!, {r4-r11, r14}            \n" // Pop the core registers.
+                            "       tst r14, #0x10                      \n" // restore FPU if task using
+                            "       it eq                               \n"
+                            "       vldmiaeq r0!, {s16-s31}             \n" // Pop the high FPU registers.
                             "                                           \n"
                             "       msr psp, r0                         \n" // Restore the main stack register
-                            "       ORR lr, lr, #4                      \n"
                             "                                           \n"
                             "       bx lr                               \n"// Branch to LR (R14) to return from exception
+                            "                                           \n"
                             "       .align 2                            \n"
-                            "ppStack: .word _sStack                           \n"// .word _ZN7pegasus3hal7stm32f413ThreadContext7_sStackE                \n"
+                            "ppStack: .word _sStack                     \n"// .word _ZN7pegasus3hal7stm32f413ThreadContext7_sStackE                \n"
                             : /* out */
                             : /* in */
                             [csw] "i"(&pegasus::hal::stm32f4::ThreadContext::callSwitch)
-                            : "memory", "cc"
+                            :
                     );
                 }
             }

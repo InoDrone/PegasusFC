@@ -26,6 +26,12 @@
 //#define CALLSV(code) asm volatile("svc %[svcode]" ::[svcode] "I" (code))
 #define CALLSV(code) pegasus::hal::stm32f4::InterruptRegister::callServiceInterrupt(code)
 
+#define HIGH_PRIORITY_SENSOR    64
+#define HIGH_PRIORITY_RC        65
+#define MEDIUM_PRIORITY_FC      128
+#define MEDIUM_PRIORITY         129
+#define LOW_PRIORITY            200
+
 namespace pegasus {
     namespace hal {
         namespace stm32f4{

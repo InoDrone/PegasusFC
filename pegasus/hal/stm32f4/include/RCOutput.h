@@ -22,7 +22,7 @@ namespace pegasus {
             class RCOutput : public pegasus::hal::RCOutputBase<Gpio, TimerChannel>
             {
                 public:
-                  RCOutput(Gpio* pin, TimerChannel* timer, uint16_t freqHz);
+                  RCOutput(Gpio* pin, pegasus::hal::gpio::AlternateFunction AF, TimerChannel* timer, uint16_t freqHz);
 
                   void write(uint16_t value);
             };

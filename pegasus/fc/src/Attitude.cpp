@@ -29,7 +29,8 @@ namespace pegasus
         Engine *e = &engine; // alias
 
         Attitude::Attitude() :
-                lastMillis(0)
+                lastMillis(0),
+                dcm()
         {
             gyroSum = {0 ,0.0f, 0.0f, 0.0f};
             accSum  = {0, 0.0f, 0.0f, 0.0f};
@@ -65,6 +66,8 @@ namespace pegasus
         void Attitude::update()
         {
 
+            if (gyroSum.count == 0 || accSum.count == 0) return;
+
             att.gyro.x = (float)((float)gyroSum.x / (float)gyroSum.count);
             att.gyro.y = (float)((float)gyroSum.y / (float)gyroSum.count);
             att.gyro.z = (float)((float)gyroSum.z / (float)gyroSum.count);
@@ -77,10 +80,10 @@ namespace pegasus
             accSum = {0,0,0,0};
 
             // Compute DCM
-            // To EULER Angle
+            dcm.update(&att, 0.005f); // G_DT 5ms
         }
 
-        Attitude_t Attitude::getAttitude() const
+        const Attitude_t &Attitude::getAttitude() const
         {
             return att;
         }

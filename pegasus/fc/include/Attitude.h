@@ -21,6 +21,7 @@
 
 #include "fc/include/Defs.h"
 #include "fc/include/GyroAccBase.h"
+#include "fc/include/DCM.h"
 #include "hal/include/ServicesListener.h"
 
 namespace pegasus
@@ -35,12 +36,13 @@ namespace pegasus
                 void gyroAccSum();
                 void update();
 
-                Attitude_t getAttitude() const;
+                const Attitude_t &getAttitude() const;
 
                 void svc(pegasus::fc::service::Service id);
 
             private:
                 long lastMillis;
+                DCM dcm;
                 struct AxisSum_t {
                     int16_t count;
 

@@ -11,6 +11,18 @@
 namespace pegasus {
     namespace fc {
 
+        Pid::Pid() :
+                kP(40.0f),
+                kI(0.0f),
+                kD(0.0f),
+                kPStab(120.0f),
+                kIStab(0.0f),
+                integral(0),
+                lastError(0)
+        {
+
+        }
+
         Pid::Pid(float kP, float kI, float kD, float kPStab, float kIStab)
         {
                 this->kP = kP;
@@ -108,6 +120,15 @@ namespace pegasus {
 
 
             return ((errorAngle * kPStab) - (gyro*kP)) + (integral * kIStab) - (errorSum * kD);
+        }
+
+        void Pid::setConfig( PIDConfig_t lvl, PIDConfig_t rate)
+        {
+            kPStab = lvl.kP;
+            kIStab = lvl.kI;
+            kP = rate.kP;
+            kI = rate.kI;
+            kD = rate.kD;
         }
     }
 }

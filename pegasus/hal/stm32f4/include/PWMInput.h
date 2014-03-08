@@ -42,14 +42,14 @@ namespace pegasus {
             {
 
                 public:
-                    PWMInput(pegasus::hal::pwm::PWMConfig pwmConfig, TimerChannel* timerChannel);
+                    PWMInput(Gpio* io, pegasus::hal::gpio::AlternateFunction AF, TimerChannel* timerChannel, uint16_t freqHz);
 
                     void interrupt();
                     bool attachInterrupt(pegasus::hal::PWMListener* listener);
 
                 protected:
                     TimerChannel* _mTimerChannel;
-                    Gpio _mPin;
+                    Gpio* _mPin;
 
                 private:
                     pegasus::hal::PWMListener* _mTimerListener;

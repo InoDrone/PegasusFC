@@ -43,6 +43,8 @@ namespace pegasus {
                     static void enableInterrupts(void);
                     static void disableInterrupts(void);
 
+                    static void setBasePri(uint16_t priority);
+
                     /* STACK SELECTOR */
                     static void toMSP(void);
                     static void toPSP(void);
@@ -81,6 +83,17 @@ namespace pegasus {
                     : // output
                     : // input
                     : // clobber
+                );
+            }
+
+            INLINE void Processor::setBasePri(uint16_t priority)
+            {
+                asm volatile
+                (
+                        "MSR basepri, %0"
+                        : //output
+                        : "r" (priority)
+                        : // clobber
                 );
             }
 

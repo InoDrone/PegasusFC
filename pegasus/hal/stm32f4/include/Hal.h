@@ -24,6 +24,7 @@
 #include "hal/stm32f4/include/SpiDevice.h"
 #include "hal/stm32f4/include/UARTDriver.h"
 #include "hal/stm32f4/include/USBSerial.h"
+#include "hal/stm32f4/include/DataStore.h"
 
 namespace pegasus {
     namespace hal {
@@ -45,21 +46,11 @@ namespace pegasus {
 
         typedef pegasus::hal::stm32f4::InterruptRegister InterruptRegister;
 
+        typedef pegasus::hal::stm32f4::DataStore DataStore;
+
 
         extern PortMapping portMapping;
-
-        static INLINE PortMapping::PinInfo PORTMAPPING (char port, pegasus::gpio::bitNumber_t bit, TIM_TypeDef*  timer,uint8_t channel, uint16_t freqHz) {
-            PortMapping::PinInfo pin;
-            gpio::portNumber_t portNumber = (port-'A');
-
-            pin.port = portNumber;
-            pin.bit = bit;
-            pin.timer = timer;
-            pin.channel = channel;
-            pin.freqHz = freqHz;
-
-            return pin;
-        }
+        extern DataStore ds;
     }
 }
 

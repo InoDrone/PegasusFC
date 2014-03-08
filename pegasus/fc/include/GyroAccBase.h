@@ -19,7 +19,7 @@ namespace pegasus {
                 GyroAccBase() :
                     _mAutoSampling(0) {};
 
-                virtual void init() = 0;
+                virtual bool init() = 0;
                 virtual void getMotion6(Motion6f*) = 0;
                 virtual void getGYRO(Axisf*) = 0;
                 virtual void getACC(Axisf*) = 0;

@@ -63,10 +63,13 @@ struct Attitude_t {
         Axisf acc;
         Axisf gyro;
         Axisf mag;
-        Axisf euler;
+        struct {
+               float roll;
+               float pitch;
+               float yaw;
+        } euler;
         float sonar;
 };
-
 
 
 #endif /* DEFS_H_ */

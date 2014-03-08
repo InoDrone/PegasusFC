@@ -36,6 +36,14 @@
 #define TIM_CCER_FALLING_EDGE  ((uint16_t) 0x02)
 #define TIM_CCER_BOTH_EDGE     ((uint16_t) 0x06)
 
+// APB2
+#define RCC_TIM1              ((uint32_t)0x00000001)
+#define RCC_TIM8              ((uint32_t)0x00000002)
+#define RCC_TIM9              ((uint32_t)0x00010000)
+#define RCC_TIM10             ((uint32_t)0x00020000)
+#define RCC_TIM11             ((uint32_t)0x00040000)
+
+// APB1
 #define RCC_TIM2              ((uint32_t)0x00000001)
 #define RCC_TIM3              ((uint32_t)0x00000002)
 #define RCC_TIM4              ((uint32_t)0x00000004)
@@ -48,16 +56,18 @@
 
 
 namespace pegasus {
-    namespace timer {
-        enum Channel {
-            CHANNEL_1,
-            CHANNEL_2,
-            CHANNEL_3,
-            CHANNEL_4
-        };
-    }
 
     namespace hal {
+
+        namespace timer {
+            enum Channel {
+                CHANNEL_1,
+                CHANNEL_2,
+                CHANNEL_3,
+                CHANNEL_4
+            };
+        }
+
         typedef pegasus::hal::TimerBase<TIM_TypeDef> TimerBase_t;
 
         namespace stm32f4 {

@@ -38,7 +38,7 @@ namespace pegasus {
     namespace hal {
         struct Stack_t {
                 uint32_t *top;
-                uint32_t  stack[STACK_SIZE / sizeof(uint32_t)];
+                uint32_t  stack[STACK_SIZE];// / sizeof(uint32_t)];
         };
     }
 }

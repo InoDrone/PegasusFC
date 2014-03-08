@@ -173,8 +173,6 @@
 #define MPU6000_REV_D8              0x58    // 0101         1000
 #define MPU6000_REV_D9              0x59    // 0101         1001
 
-#define MPU6000_ONE_G               9.80665f
-
 #define MPU6000_ACC_SENS_2G         16384.0f
 #define MPU6000_ACC_SENS_4G         8192.0f
 #define MPU6000_ACC_SENS_8G         4096.0f
@@ -194,7 +192,7 @@ namespace pegasus
         {
             public:
                 MPU6000(pegasus::hal::SpiDeviceBase_t* spiDevice);
-                void init();
+                bool init();
 
                 void getMotion6(Motion6f*);
                 void getGYRO(Axisf*);
@@ -210,6 +208,7 @@ namespace pegasus
                 float _mAccRangeScale;
                 float _mGyroRangeScale;
                 float _mGyroRangeScaleRadSec;
+                bool _mOffsetCalculated;
 
                 void read();
                 void getZeroOffset();

@@ -23,7 +23,7 @@ namespace pegasus
         {
             uint32_t* p = _mStack.stack;
             if (p != nullptr) {
-                uint32_t size = STACK_SIZE / sizeof(uint32_t);
+                uint32_t size = STACK_SIZE;// / sizeof(uint32_t);
                 for(; size > 0;--size)
                     *p++ = 0x99AAAA99;
             }

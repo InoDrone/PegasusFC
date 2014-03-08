@@ -61,7 +61,7 @@
 * @{
 */
 
-const USBD_Usr_cb_TypeDef USR_cb =
+USBD_Usr_cb_TypeDef USR_cb =
 {
   USBD_USR_Init,
   USBD_USR_DeviceReset,

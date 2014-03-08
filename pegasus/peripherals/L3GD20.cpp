@@ -22,7 +22,7 @@ namespace pegasus
             // Init Device
         }
 
-        void L3GD20::init()
+        bool L3GD20::init()
         {
             pegasus::core::trace.log("[L3GD20] Initialization");
             uint8_t ctrl1 = 0x0;
@@ -50,6 +50,8 @@ namespace pegasus
 
             read();
             pegasus::core::trace.log("[L3GD20] Initialization done");
+
+            return true;
         }
 
         void L3GD20::read()

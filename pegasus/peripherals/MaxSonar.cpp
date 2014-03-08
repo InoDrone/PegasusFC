@@ -29,10 +29,12 @@ namespace pegasus {
 
         }
 
-        void MaxSonar::init() {
+        bool MaxSonar::init() {
             pegasus::core::trace.log("[MAXSONAR] Initialization");
             _mPwmIn->attachInterrupt(this);
             pegasus::core::trace.log("[MAXSONAR] Initialization done");
+
+            return true;
         }
 
         void MaxSonar::pwmUpdate(uint32_t pulseTime)

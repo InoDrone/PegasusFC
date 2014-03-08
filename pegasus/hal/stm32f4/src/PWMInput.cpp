@@ -24,15 +24,16 @@ namespace pegasus {
     namespace hal {
         namespace stm32f4 {
 
-            PWMInput::PWMInput(pegasus::hal::pwm::PWMConfig pwmConfig, TimerChannel* timerChannel) :
+            PWMInput::PWMInput(Gpio* io, pegasus::hal::gpio::AlternateFunction AF, TimerChannel* timerChannel, uint16_t freqHz) :
                     _mTimerChannel(timerChannel),
-                    _mPin(pwmConfig.pwmPin.port, pwmConfig.pwmPin.bit)
+                    _mPin(io),
+                    _mTimerListener(0)
             {
 
-                _mPin.mode(pegasus::gpio::Mode::AF_PD);
-                _mPin.setAlternateFunction(pwmConfig.AF);
+                _mPin->mode(pegasus::gpio::Mode::AF_PD);
+                _mPin->setAlternateFunction(AF);
 
-                _mTimerChannel->setModeIC(pwmConfig.freqHz);
+                _mTimerChannel->setModeIC(freqHz);
                 InterruptRegister::attachTimerInt(this, _mTimerChannel);
 
             }

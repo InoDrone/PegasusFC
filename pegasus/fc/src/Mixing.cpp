@@ -6,13 +6,15 @@
  */
 
 #include "fc/include/Mixing.h"
+#include "core/include/Math.h"
 
 namespace pegasus
 {
     namespace fc
     {
 
-        Mixing::Mixing(){}
+        Mixing::Mixing() :
+        _mMotorCount(4) {}
 
         void Mixing::init(uint8_t frame, pegasus::hal::PortMapping* ports)
         {
@@ -32,11 +34,12 @@ namespace pegasus
                 pegasus::core::trace.error("[MIXING] No RCOUTPUT found");
                 return;
             }
-            _mRcout[index]->write(VAL_PWM_MAX);
+            _mRcout[index]->write(MIN_ESC); // Turn Off ESC
         }
 
         void Mixing::update(uint16_t thrust, float roll, float pitch, float yaw)
         {
+
             switch (_mFrameType) {
                 case FRAME_QUAD:
                     _mValues[MOTOR1] = MIX(0 ,-1, -1); // Front
@@ -57,8 +60,23 @@ namespace pegasus
             }
 
             for( uint8_t i=0;i<_mMotorCount;i++) {
+                _mValues[i] = Math::constrain(_mValues[i], MIN_ESC, MAX_ESC);
+                _mRcout[i]->write(_mValues[i]);
+            }
+        }
+
+        void Mixing::write(uint16_t val, bool force) {
+
+            if (!force) {
+                val = Math::constrain(val, MIN_ESC, MAX_ESC);
+            }
+
+            for( uint8_t i=0;i<_mMotorCount;i++) {
+                _mRcout[i]->write(val);
                 //os::rcout.write(outPin[i], values[i]);
             }
         }
+
+        Mixing mix;
     } /* namespace core */
 } /* namespace Pegasus */

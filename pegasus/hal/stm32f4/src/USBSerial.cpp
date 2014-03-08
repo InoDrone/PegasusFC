@@ -29,7 +29,7 @@ namespace pegasus
         namespace stm32f4
         {
 
-            USB_OTG_CORE_HANDLE  USBSerial::USB_OTG_dev;
+            //USB_OTG_CORE_HANDLE  USBSerial::USB_OTG_dev;
 
             USBSerial::USBSerial() :
                     _mDiscPin(pegasus::gpio::D, pegasus::gpio::PIN0)
@@ -49,7 +49,7 @@ namespace pegasus
                 _mDiscPin.low();
                 pegasus::core::mainTimer.delay(200);
                 _mDiscPin.high();
-                initUSBSerial(&USB_OTG_dev);
+                //initUSBSerial(&USB_OTG_dev);
 
                 _mConnected = true;
 
@@ -77,8 +77,7 @@ namespace pegasus
 
             void USBSerial::write(uint8_t c)
             {
-                const uint8_t buffer[] = {c};
-                VCP_DataTx((uint8_t*)buffer, 1);
+                //VCP_put_char(c);
             }
 
             namespace InterruptHandler

@@ -23,14 +23,8 @@
 #ifndef __USB_BSP__H__
 #define __USB_BSP__H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
 #include "usb_core.h"
-#include <stdint.h>
-//#include "stm32f4_discovery.h"
 
 /** @addtogroup USB_OTG_DRIVER
   * @{
@@ -88,9 +82,6 @@ void USB_OTG_BSP_DriveVBUS(USB_OTG_CORE_HANDLE *pdev,uint8_t state);
 /**
   * @}
   */ 
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif //__USB_BSP__H__
 

@@ -23,19 +23,12 @@
 #ifndef __USBD_CDC_VCP_H
 #define __USBD_CDC_VCP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f4xx.h"
+#include "stm32f4xx_conf.h"
 
 #include "usbd_cdc_core.h"
 #include "usbd_conf.h"
-#include "usbd_desc.h"
-#include "usbd_usr.h"
 #include <stdint.h>
-
 
 /* Exported typef ------------------------------------------------------------*/
 /* The following structures groups all needed parameters to be configured for the
@@ -47,7 +40,7 @@ typedef struct
   uint8_t  format;
   uint8_t  paritytype;
   uint8_t  datatype;
-} LINE_CODING;
+}LINE_CODING;
 
 /* Exported constants --------------------------------------------------------*/
 /* The following define is used to route the USART IRQ handler to be used.
@@ -57,19 +50,20 @@ typedef struct
 #elif defined(USE_STM3210C_EVAL)
  #define EVAL_COM_IRQHandler            USART2_IRQHandler
 #endif /* USE_STM322xG_EVAL */
-#define EVAL_COM_IRQHandler            USART2_IRQHandler
+
+void VCP_put_char(uint8_t buf);
+void VCP_send_str(uint8_t* buf);
+int VCP_get_char(uint8_t *buf);
+int VCP_get_string(uint8_t *buf);
+void VCP_send_buffer(uint8_t* buf, int len);
 
 #define DEFAULT_CONFIG                  0
 #define OTHER_CONFIG                    1
 
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
-
 void initUSBSerial(USB_OTG_CORE_HANDLE* pDev);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
 
 #endif /* __USBD_CDC_VCP_H */
 

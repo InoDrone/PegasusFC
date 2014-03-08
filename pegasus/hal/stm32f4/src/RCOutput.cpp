@@ -11,11 +11,11 @@ namespace pegasus {
     namespace hal {
         namespace stm32f4 {
 
-            RCOutput::RCOutput(Gpio* pin, TimerChannel* timer, uint16_t freqHz) :
+            RCOutput::RCOutput(Gpio* pin, pegasus::hal::gpio::AlternateFunction AF, TimerChannel* timer, uint16_t freqHz) :
                    RCOutputBase<Gpio, TimerChannel>(pin, timer, freqHz) {
 
-                _mPin->mode(pegasus::gpio::Mode::PWM);
-                _mPin->setAlternateFunction(pegasus::gpio::AlternateFunction::AF2);
+                _mPin->mode(pegasus::gpio::Mode::AF_PU);
+                _mPin->setAlternateFunction(AF);
 
                 _mTimerChannel->setModeOC(freqHz); // Auto enable is function
 

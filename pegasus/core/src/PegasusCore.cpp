@@ -65,9 +65,6 @@ namespace pegasus {
 
     namespace hal {
         pegasus::hal::PortMapping portMapping;
-    }
-
-    namespace fc {
-        pegasus::fc::Mixing mix;
+        pegasus::hal::DataStore ds;
     }
 }

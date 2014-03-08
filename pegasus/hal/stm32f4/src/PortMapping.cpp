@@ -11,27 +11,23 @@ namespace pegasus {
     namespace hal {
         namespace stm32f4 {
 
-            void PortMapping::add(PinInfo pinInfo, uint8_t index)
+            void PortMapping::add(uint8_t index)
             {
+                PinInfo inf = PORTMAP[index];
+
                 Pin pin;
-                pin.pinInfo = pinInfo;
-                Gpio io(pinInfo.port, pinInfo.bit);
+                pin.pinInfo = inf;
+               // Gpio io(inf.port, inf.bit);
 
-                pin.io = &io;
+                pin.io = new Gpio(inf.port, inf.bit);
 
-                if (pinInfo.timer && pinInfo.channel != 0xFF) {
-                    Timer tm(pinInfo.timer);
-                    TimerChannel tc(&tm, pinInfo.channel);
-                    pin.timerChannel = &tc;
+                if (inf.timer && inf.channel != 0xFF) {
+                    //TimerChannel tc(inf.timer, inf.channel);
+                    pin.timerChannel = new TimerChannel(inf.timer, inf.channel);// tc;
                 }
 
                 _mPins[index] = pin;
             }
-
-            /*void PortMapping::add(SpiConfig, uint8_t)
-            {
-
-            }*/
 
             RCOutput* PortMapping::getRCOutput(uint8_t index)
             {
@@ -39,12 +35,26 @@ namespace pegasus {
                     return 0;
                 }
 
-                if (!_mPins[index].rcout) {
-                    RCOutput rc(_mPins[index].io, _mPins[index].timerChannel, _mPins[index].pinInfo.freqHz);
-                    _mPins[index].rcout = &rc;
+                if (!_mPins[index].out) {
+                    //RCOutput rc(_mPins[index].io, _mPins[index].timerChannel, _mPins[index].pinInfo.freqHz);
+                    _mPins[index].out = new RCOutput(_mPins[index].io, _mPins[index].pinInfo.AF, _mPins[index].timerChannel, _mPins[index].pinInfo.freqHz); //&rc;
                 }
 
-                return _mPins[index].rcout;
+                return _mPins[index].out;
+            }
+
+            PWMInput* PortMapping::getPWMInput(uint8_t index)
+            {
+                if (!_mPins[index].timerChannel) {
+                    return 0;
+                }
+
+                if (!_mPins[index].in) {
+                    //RCOutput rc(_mPins[index].io, _mPins[index].timerChannel, _mPins[index].pinInfo.freqHz);
+                    _mPins[index].in = new PWMInput(_mPins[index].io, _mPins[index].pinInfo.AF, _mPins[index].timerChannel, _mPins[index].pinInfo.freqHz); //&rc;
+                }
+
+                return _mPins[index].in;
             }
 
         }

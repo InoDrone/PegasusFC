@@ -31,7 +31,7 @@ namespace pegasus {
             public:
                 MaxSonar(pegasus::hal::PWMInput* pwmIn);
 
-                void init();
+                bool init();
                 /**
                  * Get sonar distance in cm
                  */

@@ -15,12 +15,34 @@ namespace pegasus {
             Timer::Timer(TIM_TypeDef* timer) :
                 TimerBase<TIM_TypeDef>(timer) {
 
-                if (_mReg == TIM3) {
+                if (_mReg == TIM1) {
+                    RCC->APB2ENR |= RCC_TIM1;
+                } else if (_mReg == TIM2) {
+                    RCC->APB1ENR |= RCC_TIM2;
+                } else if (_mReg == TIM3) {
                     RCC->APB1ENR |= RCC_TIM3;
                 } else if (_mReg == TIM4 ) {
                     RCC->APB1ENR |= RCC_TIM4;
+                } else if (_mReg == TIM5 ) {
+                    RCC->APB1ENR |= RCC_TIM5;
                 } else if (_mReg == TIM6 ) {
                     RCC->APB1ENR |= RCC_TIM6;
+                } else if (_mReg == TIM7 ) {
+                    RCC->APB1ENR |= RCC_TIM7;
+                } else if (_mReg == TIM8 ) {
+                    RCC->APB2ENR |= RCC_TIM8;
+                } else if (_mReg == TIM9 ) {
+                    RCC->APB2ENR |= RCC_TIM9;
+                } else if (_mReg == TIM10 ) {
+                    RCC->APB2ENR |= RCC_TIM10;
+                } else if (_mReg == TIM11 ) {
+                    RCC->APB2ENR |= RCC_TIM11;
+                } else if (_mReg == TIM12 ) {
+                    RCC->APB1ENR |= RCC_TIM12;
+                } else if (_mReg == TIM13 ) {
+                    RCC->APB1ENR |= RCC_TIM13;
+                } else if (_mReg == TIM14 ) {
+                    RCC->APB1ENR |= RCC_TIM14;
                 }
 
                 // Reset timer
@@ -36,7 +58,12 @@ namespace pegasus {
                 Clocks clocks;
                 Core::getSystemClock(&clocks);
 
-                uint16_t psc = (uint16_t)(( (clocks.PCLK1*2) / 1000000) -1);
+                uint16_t psc = 0;
+                if (_mReg == TIM1 || _mReg == TIM8 || _mReg == TIM9 || _mReg == TIM10 || _mReg == TIM11) {
+                    psc = (uint16_t)(( (clocks.PCLK2*2) / 1000000) -1);
+                } else {
+                    psc = (uint16_t)(( (clocks.PCLK1*2) / 1000000) -1);
+                }
                 uint16_t arr = 0xFFFF;
                 if (freqHz < 0xFFFF) {
                     arr = (uint16_t)( 1000000 / freqHz);
@@ -75,6 +102,15 @@ namespace pegasus {
                         ccmrx |= (uint16_t)(TIM_MODE_PWM1 << ccmrChannel); // Set mode to PWM 1
                         ccmrx |= (uint16_t)(TIM_OCPRELOAD_ENABLE << ccmrChannel);
 
+                        if (_mReg == TIM1 || _mReg == TIM8) {
+                            _mReg->CCER &= ~(TIM_CCER_CC1NP); // Reset Output N Polarity
+                            _mReg->CCER &= ~(TIM_CCER_CC1NE); // Reset Output N State
+                            _mReg->CR2 &= ~(TIM_CR2_OIS1); // Reset Output Compare and N IDLE state
+                            _mReg->CR2 &= ~(TIM_CR2_OIS1N);
+
+                            _mReg->BDTR |= TIM_BDTR_MOE;
+                        }
+
                         *CCMRX = ccmrx;
 
                         _mReg->CCER |= (TIM_CCER_CC1E << (channel *4)); // Enable channel OC
@@ -103,7 +139,7 @@ namespace pegasus {
                     pos = 8;
                 } else if (_mReg == TIM10) {
                     pos = 9;
-                } else {
+                } else if (_mReg == TIM11) {
                     pos = 10;
                 }// TODO finish
 

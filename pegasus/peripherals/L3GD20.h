@@ -72,7 +72,7 @@ namespace pegasus
                 pegasus::hal::SpiDeviceBase_t* _mSpi;
                 uint16_t values[3];
 
-                void init();
+                bool init();
                 void read();
         };
 

@@ -60,7 +60,7 @@ typedef enum
   FLASH_ERROR_PROGRAM,
   FLASH_ERROR_OPERATION,
   FLASH_COMPLETE
-}FLASH_Status;
+} FLASH_Status;
 
 /* Exported constants --------------------------------------------------------*/
 

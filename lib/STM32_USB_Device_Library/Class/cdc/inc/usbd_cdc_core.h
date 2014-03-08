@@ -113,7 +113,7 @@ CDC_IF_Prop_TypeDef;
   * @{
   */ 
 
-extern const USBD_Class_cb_TypeDef  USBD_CDC_cb;
+extern USBD_Class_cb_TypeDef  USBD_CDC_cb;
 /**
   * @}
   */ 

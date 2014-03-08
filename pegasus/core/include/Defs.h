@@ -36,7 +36,7 @@ namespace pegasus {
 #define DEG2RAD(deg) (deg * 0.01745329252f)
 #define RAD2DEG(rad) (rad * 57.2957795131f)
 
-
+#define ONEG_MSS               9.80665f
 
 /****************************************************
  * VERSION
@@ -57,6 +57,14 @@ namespace pegasus {
 
 #define VAL_PWM_MIN         1000
 #define VAL_PWM_MAX         2000
+#define VAL_PWM_CENTER      1500
+
+#define MIN_ESC        1000
+#define IDLE_ESC       1200
+#define MAX_ESC        2000
+
+#define MIN_THROTTLE        IDLE_ESC
+
 
 #define MIXING_MAX_OUTPUT 8
 
@@ -79,7 +87,7 @@ namespace pegasus {
 #define FRAME_OSPREY    7
 
 
-enum PWM_OUT {
+enum {
     MOTOR1,
     MOTOR2,
     MOTOR3,
@@ -92,7 +100,14 @@ enum PWM_OUT {
     SERVO2,
     SERVO3,
     SERVO4,
-    PWM_OUT_LENGTH
+    RC1,
+    RC2,
+    RC3,
+    RC4,
+    RC5,
+    RC6,
+    RC7,
+    RC8
 };
 
 

@@ -13,6 +13,7 @@
 
 
 #define MIX(X,Y,Z) thrust + (roll*X) + (pitch*Y) + (yaw*Z)
+#define PWM_OUT_LENGTH 8
 
 namespace pegasus
 {
@@ -27,7 +28,7 @@ namespace pegasus
                 void init(uint8_t frame, pegasus::hal::PortMapping* ports);
                 void add(uint8_t index);
                 void update(uint16_t thrust, float roll, float pitch, float yaw);
-                void write();
+                void write(uint16_t val, bool force=false);
 
             private:
                 pegasus::hal::RCOutput*         _mRcout[MIXING_MAX_OUTPUT];
