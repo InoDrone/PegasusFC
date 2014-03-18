@@ -74,10 +74,35 @@ namespace pegasus {
 
 
                     void write(uint8_t c);
-                    void receive(uint8_t byte);
+
+                    uint8_t read();
+                    bool available();
+
+                    struct DMABuffer {
+                            uint8_t buffer[1024];
+                            uint16_t pos;
+                            uint16_t tail;
+                            bool enabled;
+                            uint8_t streamNum;
+                            DMA_Stream_TypeDef* stream;
+                            uint32_t channel;
+                    };
+
+                    static UARTDriver* dmaPtr[2][7];
+                    void dmaInterrupt();
 
                 private:
                     void setBaudRate();
+                    void enableDMA();
+                    void startTxDMA();
+                    void print(const char *str);
+                    void dmaWrite(uint8_t c);
+
+                    bool btConnected;
+                    void btParseByte(uint8_t c);
+
+                    DMABuffer tx;
+                    DMABuffer rx;
             };
 
         } /* namespace stm32f4 */

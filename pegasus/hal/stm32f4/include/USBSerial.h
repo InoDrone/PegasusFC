@@ -48,6 +48,8 @@ namespace pegasus
                     bool close();
 
                     void write(uint8_t c);
+                    uint8_t read();
+                    bool available();
 
                     //static USB_OTG_CORE_HANDLE  USB_OTG_dev;
 

@@ -225,7 +225,9 @@ namespace pegasus
                     reg->SR &= ~(USART_SR_RXNE); // Clear int flag
                 }/* else if (reg->SR & USART_SR_TXE) {
                     reg->SR &= ~(USART_SR_TXE); // Clear int flag
-                }*/
+                }*/ else if (reg->SR & USART_SR_ORE) {
+                    reg->SR &= ~(USART_SR_ORE); // Clear overrun flag
+                }
                 Processor::setBasePri(0);
             }
 

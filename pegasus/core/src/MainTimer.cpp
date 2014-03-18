@@ -45,7 +45,7 @@ namespace pegasus {
             _mTicks++;
 
             if (pegasus::core::threadManager.isStarted()) {
-                pegasus::hal::ArchCore::yield();
+                pegasus::core::threadManager.yield();
             }
         }
     }

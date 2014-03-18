@@ -12,7 +12,7 @@
 #include "hal/stm32f4/include/ThreadContext.h"
 
 extern "C" {
-  void Reset_Handler(void) {};
+  void Reset_Handler(void) __attribute__((alias("_ZN7pegasus3hal7stm32f416InterruptHandler5ResetEv")));;
 }
 
 namespace pegasus {
@@ -20,6 +20,7 @@ namespace pegasus {
     namespace stm32f4 {
 
       const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
+      uint8_t Core::isrCount = 0;
 
       void Core::init()
       {
@@ -41,6 +42,21 @@ namespace pegasus {
       void Core::yield()
       {
           (*((volatile unsigned long *) 0xE000ED04)) = (1 << 0x1C);
+      }
+
+      void Core::enterISR()
+      {
+          isrCount++;
+      }
+
+      void Core::exitISR()
+      {
+          isrCount--;
+      }
+
+      bool Core::inISR()
+      {
+          return isrCount > 0;
       }
 
       void Core::initThread() {

@@ -33,9 +33,13 @@ namespace pegasus {
                 void contextSwitchInterrupt();
                 Thread* getCurrent();
 
+                void lock();
+                void unlock();
+
             private:
                 Pipe<Thread, MAX_THREAD> _mThreads;
                 bool volatile _mIsStarted;
+                bool volatile _mIsLocked;
                 Thread* volatile _mCurrentThread;
 
 
@@ -48,6 +52,16 @@ namespace pegasus {
         INLINE bool ThreadManager::isStarted()
         {
             return _mIsStarted;
+        }
+
+        INLINE void ThreadManager::lock()
+        {
+            _mIsLocked = true;
+        }
+
+        INLINE void ThreadManager::unlock()
+        {
+            _mIsLocked = false;
         }
 
         extern ThreadManager threadManager;

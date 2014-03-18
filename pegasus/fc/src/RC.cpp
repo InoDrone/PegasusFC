@@ -31,19 +31,23 @@ namespace pegasus{
             pitch.setAngle(90);
             yaw.setAngle(180); // -180 -> 180
 
+            aux1.setSwitch();
+            //aux2.setSwitch();
+
         }
 
         void RC::check()
         {
             uint8_t valid = 0;
-            if (throttle.isValid()) valid++;
+            bool throttleValid = false;
+            if (throttle.isValid()) { valid++; throttleValid = true; }
             if (roll.isValid()) valid++;
             if (pitch.isValid()) valid++;
             if (yaw.isValid()) valid++;
             if (aux1.isValid()) valid++;
             if (aux2.isValid()) valid++;
 
-            if (valid < _mValidChannel || valid == 0) {
+            if (valid < _mValidChannel || valid == 0 || !throttleValid) {
                 _mSignalError = true;
             } else {
                 _mSignalError = false;

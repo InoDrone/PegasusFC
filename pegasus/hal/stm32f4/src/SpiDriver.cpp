@@ -80,6 +80,11 @@ namespace pegasus
                 sendByte(data);
             }
 
+            void SpiDriver::writeByte(uint8_t addr)
+            {
+                sendByte(addr);
+            }
+
             void SpiDriver::read(uint8_t* buffer, uint8_t addr, uint16_t size)
             {
                 /*if (size > 1) {
@@ -89,7 +94,7 @@ namespace pegasus
                 }*/
 
 
-                sendByte(addr | SPI_READWRITE_CMD);
+                sendByte(addr);
                 while (size > 0x00) {
                     *buffer = sendByte(0x0);
                     buffer++;
@@ -100,7 +105,7 @@ namespace pegasus
 
             void SpiDriver::read(volatile uint8_t* buffer, uint8_t addr, uint16_t size)
             {
-                sendByte(addr | SPI_READWRITE_CMD);
+                sendByte(addr);
                 while (size > 0x00) {
                     *buffer = sendByte(0x0);
                     buffer++;

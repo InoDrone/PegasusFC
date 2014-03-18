@@ -47,6 +47,13 @@ namespace pegasus
             return init(portIdx);
         }
 
+        void RCChannel::setConfig (uint16_t min, uint16_t center, uint16_t max)
+        {
+            _mRadioMin = min;
+            _mRadioMax = max;
+            _mRadioCenter = center;
+        }
+
         bool RCChannel::isValid()
         {
             uint32_t millis = pegasus::core::mainTimer.millis();

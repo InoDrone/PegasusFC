@@ -56,7 +56,7 @@ namespace pegasus
             _mSpi->setSpeed(SPI_LOW);
 
             uint8_t buffer = 0x0;
-            _mSpi->read(&buffer, MPU6000_RA_WHO_AM_I, 1);
+            _mSpi->read(&buffer, MPU6000_RA_WHO_AM_I | SPI_READWRITE_CMD, 1);
             if ((buffer & 0x7E) == 0x68) {
                 pegasus::core::trace.log("[MPU6000] ping OK");
             } else {
@@ -64,7 +64,7 @@ namespace pegasus
                 return false;
             }
 
-            _mSpi->read(&buffer, MPU6000_RA_PRODUCT_ID, 1);
+            _mSpi->read(&buffer, MPU6000_RA_PRODUCT_ID | SPI_READWRITE_CMD, 1);
             pegasus::core::trace.log("[MPU6000] Product ID : %d", buffer);
 
 
@@ -125,7 +125,7 @@ namespace pegasus
         void MPU6000::read()
         {
 
-            _mSpi->read(_mDatas.bytes, MPU6000_RA_ACCEL_XOUT_H,(uint16_t) sizeof (uDatas6));
+            _mSpi->read(_mDatas.bytes, MPU6000_RA_ACCEL_XOUT_H | SPI_READWRITE_CMD,(uint16_t) sizeof (uDatas6));
 
             /* SWAP BIT */
             uint8_t len = sizeof(uDatas6) / 2;

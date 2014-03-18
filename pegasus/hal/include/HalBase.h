@@ -15,6 +15,10 @@ namespace pegasus {
             public:
                static void init();
                static void reset();
+
+               static void enterISR();
+               static void exitISR();
+               static bool inISR();
         };
     }
 }

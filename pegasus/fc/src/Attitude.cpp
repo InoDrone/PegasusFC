@@ -20,17 +20,21 @@
 #include "fc/include/Attitude.h"
 #include "core/include/Trace.h"
 #include "core/include/MainTimer.h"
+#include "core/include/Math.h"
 
 namespace pegasus
 {
     namespace fc
     {
 
+        using namespace pegasus::core;
+
         Engine *e = &engine; // alias
 
         Attitude::Attitude() :
                 lastMillis(0),
-                dcm()
+                dcm(),
+                _mAltitudeUpdate(0)
         {
             gyroSum = {0 ,0.0f, 0.0f, 0.0f};
             accSum  = {0, 0.0f, 0.0f, 0.0f};

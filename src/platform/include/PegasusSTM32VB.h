@@ -15,6 +15,7 @@
 #include "fc/include/Engine.h"
 
 #include "peripherals/MPU6000.h"
+#include "peripherals/MS5611.h"
 #include "peripherals/MaxSonar.h"
 
 #define ESC_SPEED       ESC_200HZ
@@ -25,6 +26,7 @@
 #define RC_ROLL            RC2
 #define RC_PITCH           RC3
 #define RC_YAW             RC4
+#define RC_ALT_HOLD        RC5
 
 
 void initPlatform();

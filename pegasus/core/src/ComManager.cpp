@@ -29,7 +29,9 @@ namespace pegasus
         ComManager::ComManager() :
                 countDevice(0),
                 lastPong(0)
-        {}
+        {
+            txMutex = Mutex::create();
+        }
 
         void ComManager::addDevice(ComDeviceBase* device) {
             if (countDevice >= COMMANAGER_MAX_DEVICE) {
@@ -48,50 +50,54 @@ namespace pegasus
 
         void ComManager::write(char c, uint8_t type) {
             uint8_t i;
+
+            Mutex::enter(txMutex);
             for (i=0;i<countDevice;i++) {
                 if (_mDevices[i].device->isConnected() && _mDevices[i].type == type) {
                     _mDevices[i].device->write(c);
                 }
             }
+            Mutex::leave(txMutex);
         }
 
         void ComManager::print(const char msg[], uint8_t type)
         {
             uint8_t i;
+
+            Mutex::enter(txMutex);
             for (i=0;i<countDevice;i++) {
                 if (_mDevices[i].device->isConnected() && _mDevices[i].type == type) {
                     _mDevices[i].device->write(msg);
                 }
             }
+            Mutex::leave(txMutex);
         }
 
         void ComManager::println(const char msg[], uint8_t type)
         {
-            uint8_t i;
-            for (i=0;i<countDevice;i++) {
-                if (_mDevices[i].device->isConnected() && _mDevices[i].type == type) {
-                    _mDevices[i].device->write(msg);
-                    _mDevices[i].device->write("\r\n");
-                }
-            }
+            print (msg, type);
+            print ("\r\n", type);
         }
 
         void ComManager::send(const uavlink_message_t msg)
         {
+            uint8_t i;
             uint8_t buffer[255];
             uint16_t size = 0;
             size = uavlink_get_buffer(buffer, msg);
 
-            uint8_t i;
+            Mutex::enter(txMutex);
             for (i=0;i<countDevice;i++) {
                 if (_mDevices[i].device->isConnected() && _mDevices[i].type == ComManager::UAVLINK) {
                     _mDevices[i].device->write((const char*)buffer, size);
                 }
             }
+            Mutex::leave(txMutex);
         }
 
         void ComManager::send(uavlink_message_t msg, uint8_t id)
         {
+            Mutex::enter(txMutex);
             if (!_mDevices[id].device->isConnected() || !_mDevices[id].type == ComManager::UAVLINK) {
                 return;
             }
@@ -101,7 +107,7 @@ namespace pegasus
             size = uavlink_get_buffer(buffer, msg);
 
             _mDevices[id].device->write((const char*)buffer, size);
-
+            Mutex::leave(txMutex);
         }
 
         void ComManager::ping()
@@ -114,6 +120,17 @@ namespace pegasus
             if (lastPong == 0) return false;
 
             return (mainTimer.millis() - lastPong) < 1000;
+        }
+
+        void ComManager::task()
+        {
+            uint8_t c;
+            for (uint8_t i=0;i<countDevice;i++) {
+                if (_mDevices[i].device->isConnected() && _mDevices[i].device->available()) {
+                    c = _mDevices[i].device->read();
+                    receive(c, i);
+                }
+            }
         }
 
         void ComManager::receive(uint8_t byte, uint8_t id) {

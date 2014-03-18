@@ -27,7 +27,7 @@ namespace pegasus {
                 SonarBase() {};
 
                 virtual bool init() = 0;
-                virtual uint32_t getDistance() = 0;
+                virtual float getDistance() = 0;
         };
     }
 }

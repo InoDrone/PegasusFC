@@ -57,8 +57,8 @@ namespace pegasus {
             template <typename T>
             void Matrix<T>::toEULER(float *roll, float* pitch, float *yaw)
             {
-                *roll  = atan2f(c.y, c.z);
-                *pitch = -asinf(c.x);
+                *roll  = -atan2f(c.y, c.z);
+                *pitch = asinf(c.x);
                 *yaw   = atan2f(b.x, a.x);
             }
 

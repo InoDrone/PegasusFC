@@ -45,6 +45,12 @@ namespace pegasus {
 
                     static void yield();
 
+                    static void enterISR();
+                    static void exitISR();
+                    static bool inISR();
+
+                    static uint8_t isrCount;
+
                     static void initDataEndBss();
                     static void callStaticConstructors();
 

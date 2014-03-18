@@ -69,6 +69,9 @@ struct Attitude_t {
                float yaw;
         } euler;
         float sonar;
+        float altitude;
+        float pressure;
+        float temperature;
 };
 
 

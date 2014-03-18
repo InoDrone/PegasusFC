@@ -27,6 +27,7 @@ namespace pegasus {
 
                     void write(uint8_t* buffer, uint8_t addr, uint16_t size);
                     void writeByte(uint8_t addr, uint8_t data);
+                    void writeByte(uint8_t addr);
                     void read(uint8_t* buffer, uint8_t addr, uint16_t size);
                     void read(volatile uint8_t* buffer, uint8_t addr, uint16_t size);
 

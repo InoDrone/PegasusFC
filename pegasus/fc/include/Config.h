@@ -22,12 +22,7 @@
 #include <stdint.h>
 #include "fc/include/Defs.h"
 #include "fc/include/ConfigDefault.h"
-
-struct PIDConfig_t {
-        float kP;
-        float kI;
-        float kD;
-};
+#include "UAVLink.h"
 
 struct Config_t {
         /* CONFIG VERSION */
@@ -37,14 +32,25 @@ struct Config_t {
         uint8_t frameType;
 
         /* LEVEL ATTITUDE PID */
-        PIDConfig_t lvlRollPID;
-        PIDConfig_t lvlPitchPID;
-        PIDConfig_t lvlYawPID;
+        uavlink_pid lvlRollPID;
+        uavlink_pid lvlPitchPID;
+        uavlink_pid lvlYawPID;
 
         /* GYRO RATE PID */
-        PIDConfig_t rateRollPID;
-        PIDConfig_t ratePitchPID;
-        PIDConfig_t rateYawPID;
+        uavlink_pid rateRollPID;
+        uavlink_pid ratePitchPID;
+        uavlink_pid rateYawPID;
+
+        /* RC CALIBRATION */
+        uavlink_rc_calibration calRcThrottle;
+        uavlink_rc_calibration calRcRoll;
+        uavlink_rc_calibration calRcPitch;
+        uavlink_rc_calibration calRcYaw;
+
+        uint16_t escIDLE;
+
+
+        uavlink_pid altSonarPID;
 };
 
 uint16_t loadDefaultConfig(Config_t* p);

@@ -19,48 +19,58 @@
 #include "Telemetry.h"
 #include "fc/include/Engine.h"
 #include "core/include/Trace.h"
+#include "core/include/CriticalSection.h"
 #include "UAVLink.h"
 
 #include <string.h>
+#include <stdio.h>
 
 using namespace pegasus::fc;
 using namespace pegasus::core;
 
 const pegasus::fc::Engine *e = &engine;
-uavlink_message_sensor_t sensors;
-uavlink_message_command_t cmds;
-uavlink_message_status_t status;
-uavlink_message_t msg;
 
 Telemetry::Telemetry():
 Thread("TELEMETRY", [](Telemetry* p) { p->run();}) {}
 
 void Telemetry::run()
 {
-    Attitude_t att;
+    uavlink_message_status_t status;
+    uint16_t counter = 0;
 
     while(1) {
 
-        com.ping();
+        if (counter == 10) { // 500ms
+            com.ping();
+            counter = 0;
+        }
+
+        counter++;
+
         /* if com not active disable telemetry */
         if (!com.isActive()) {
-            engine.rm(ENGINE_RCCALIBRATION);
             continue;
         }
 
-        att = e->attitude.getAttitude();
-        memcpy(&status.gyro, &att.gyro, sizeof(att.gyro));
-        //memcpy(&status.acc, &att.acc, sizeof(att.acc));
-        //memcpy(&status.mag, &att.mag, sizeof(att.mag));
-        //memcpy(&status.angle, &att.euler, sizeof(att.euler));
+        addAttitude(&status);
+        status.rc.throttle = e->rc->throttle.getInput();
+        status.rc.roll = e->rc->roll.getInput();
+        status.rc.pitch = e->rc->pitch.getInput();
+        status.rc.yaw = e->rc->yaw.getInput();
+
+        status.altSonar = e->sonar->getDistance();
+        status.altBaro = e->baro->getAltitude();
         status.frameType = p.frameType;
         status.version = p.version;
 
-        msg = uavlink_message_status_encode(&status);
-        com.send(msg);
+        {
+            pegasus::core::CriticalSection cs;
+
+            com.send(uavlink_message_status_encode(&status));
+        }
 
         // IF engine status is RC CALIBRATION send rc raw value.
-        if (engine.is(ENGINE_RCCALIBRATION)) {
+        /*if (engine.is(ENGINE_RCCALIBRATION)) {
             cmds.throttle = e->rc->throttle.getInput();
             cmds.roll     = e->rc->roll.getInput();
             cmds.pitch    = e->rc->pitch.getInput();
@@ -68,16 +78,31 @@ void Telemetry::run()
 
             msg = uavlink_message_command_encode(&cmds);
             com.send(msg);
-        }
+        }*/
 
         // pegasus::core::com.send(uavlink_message_sensor_encode(&sensors));
         // pegasus::core::trace.debug("[RC] Throttle : %d, P: %d, R: %d, Y: %d", e->rc->throttle.getInput(), e->rc->pitch.getInput(), e->rc->roll.getInput(), e->rc->yaw.getInput());
 
         //pegasus::core::trace.debug("EULER %f, %f, %f", RAD2DEG(att.euler.roll), RAD2DEG(att.euler.pitch), RAD2DEG(att.euler.yaw));
 
-
         sleep(100);
     }
+}
+
+void Telemetry::addAttitude(uavlink_message_status_t * status)
+{
+    Attitude_t att = e->attitude.getAttitude();
+    status->gyro.x = (int16_t)(att.gyro.x * 100.0f);
+    status->gyro.y = (int16_t)(att.gyro.y * 100.0f);
+    status->gyro.z = (int16_t)(att.gyro.z * 100.0f);
+
+    status->acc.x = (int16_t)(att.acc.x * 100.0f);
+    status->acc.y = (int16_t)(att.acc.y * 100.0f);
+    status->acc.z = (int16_t)(att.acc.z * 100.0f);
+
+    status->angle.roll = (int16_t)(RAD2DEG(att.euler.roll) * 100.0f);
+    status->angle.pitch = (int16_t)(RAD2DEG(att.euler.pitch) * 100.0f);
+    status->angle.yaw = (int16_t)(RAD2DEG(att.euler.yaw) * 100.0f);
 }
 
 Telemetry telemetry;

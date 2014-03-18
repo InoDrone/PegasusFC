@@ -8,6 +8,7 @@
 #include "FlightController.h"
 #include "fc/include/Engine.h"
 #include "fc/include/Mixing.h"
+#include "fc/include/Supervisor.h"
 
 using namespace pegasus::core;
 using namespace pegasus::gpio;
@@ -33,17 +34,17 @@ void FlightController::run()
 
     while(1) {
 
-        if (engine.rc->throttle.getInput() < (VAL_PWM_MIN+150)
-            && engine.rc->roll.getInput() < (VAL_PWM_MIN+150)
-            && engine.rc->pitch.getInput() < (VAL_PWM_MIN+150)
-            && engine.rc->yaw.getInput() > (VAL_PWM_MAX-150)) {
+        if (engine.rc->throttle.getInput() < (VAL_PWM_MIN+200)
+            && engine.rc->roll.getInput() < (VAL_PWM_MIN+200)
+            && engine.rc->pitch.getInput() < (VAL_PWM_MIN+200)
+            && engine.rc->yaw.getInput() > (VAL_PWM_MAX-200)) {
 
-                if (!engine.is(ENGINE_ARMED) && stickCounter >= 60 /* 3 sec */) {
-                    engine.set(ENGINE_ARMED);
+                if (!sv.isArmed() && stickCounter >= 60 /* 3 sec */) {
+                    sv.setArmed(true);
                     stickCounter = 0;
                 }
-                else if (engine.is(ENGINE_ARMED) && stickCounter >= 15) {
-                    engine.rm(ENGINE_ARMED);
+                else if (sv.isArmed() && stickCounter >= 15) {
+                    sv.setArmed(false);
                     stickCounter = 0;
                 }
 
@@ -60,13 +61,10 @@ void FlightController::run()
 
            }*/
 
-        if (engine.is(ENGINE_ARMED)) {
+        if (sv.isArmed()) {
             _pFunc = &FlightController::flightMode;
-        } else if (engine.is( ENGINE_ESCCALIBRATION )) {
-            //_pFunc = &FlightController::calibrateESC;
-            engine.rm(ENGINE_ESCCALIBRATION);
-            _pFunc = &FlightController::waitingMode;
         } else {
+            engine.rm(ENGINE_ALT_HOLD);
             _pFunc = &FlightController::waitingMode;
         }
 
@@ -81,23 +79,6 @@ void FlightController::run()
     }
 }
 
-void FlightController::calibrateESC()
-{
-    // Check commande for entering in correct calibration mode
-
-    mix.write(0, true);          //   Down PWM signal to very lower value (500)
-    mainTimer.delay(1000);       //   wait 1s
-    mix.write(MAX_ESC);          //   UP PWM signal to max engine value (MAX_ESC) (entering ESC calibration)
-    mainTimer.delay(2000);       //   wait 2s
-    mix.write(IDLE_ESC);         //   Down PWM signal to min engine value (IDLE_ESC)
-    mainTimer.delay(2000);       //   wait 2s
-    mix.write(0, true);          //   Down PWM signal to very lower value
-    mainTimer.delay(1000);       //   wait 2s
-    mix.write(MIN_ESC);          //   UP PWM signal to min engine value (MIN_ESC)
-
-    engine.rm(ENGINE_ESCCALIBRATION);
-    _pFunc = &FlightController::waitingMode;
-}
 
 void FlightController::waitingMode()
 {
@@ -106,11 +87,17 @@ void FlightController::waitingMode()
 
 void FlightController::flightMode()
 {
-    if (engine.is( (ENGINE_INFLIGHT | ENGINE_RCERROR) )) {
-        //auto takeof
+    static bool lastAux1Status = engine.rc->aux1.isOn;
+
+    if (lastAux1Status != engine.rc->aux1.isOn) {
+        if (engine.rc->aux1.isOn) {
+            sv.enableAltHold();
+        } else {
+            sv.disableAltHold();
+        }
+
+        lastAux1Status = engine.rc->aux1.isOn;
     }
-    // start motor
-    // if auto landing -> go to 1 meter and stabilize
 }
 
 FlightController fc;

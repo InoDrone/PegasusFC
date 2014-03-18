@@ -69,6 +69,11 @@ namespace pegasus
 
         void Led::set(bool high)
         {
+            if (_mRepeat != 0 && !_mNoStop) {
+                _mEndStatus = high;
+                return;
+            }
+
             _mRepeat = 0;
             _mNoStop = false;
 

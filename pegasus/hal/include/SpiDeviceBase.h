@@ -24,6 +24,7 @@ namespace pegasus {
                 virtual void read(uint8_t* buffer, uint8_t addr, uint16_t size) = 0;
                 virtual void read(volatile uint8_t* buffer, uint8_t addr, uint16_t size) = 0;
                 virtual void writeByte(uint8_t addr, uint8_t data) = 0;
+                virtual void writeByte(uint8_t addr) = 0;
 
                 virtual void setSpeed(uint8_t speed) = 0;
 

@@ -41,16 +41,7 @@ namespace pegasus
 
                 /* Exec engine low priority task */
                 engine.lowPriorityTask();
-
-                /*yellow.high();
-                sleep(100);
-                yellow.low();
-                white.high();
-                sleep(100);
-                white.low();
-                red.high();
-                sleep(100);
-                red.low();*/
+                com.task();
             };
         }
 

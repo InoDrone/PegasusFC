@@ -9,6 +9,7 @@
 
 #include "fc/include/Engine.h"
 #include "fc/include/Mixing.h"
+#include "fc/include/Supervisor.h"
 #include "core/include/Trace.h"
 #include "core/include/Math.h"
 
@@ -23,12 +24,12 @@ namespace pegasus
                 _mRoll(0),
                 _mPitch(0),
                 _mYaw(0),
-                _mCounter(0),
-                telemetryEnable(false) {}
+                _mCounter(0) {}
 
         void Engine::init( pegasus::hal::TimerBase_t* timer,
                 RC* rc,
                 GyroAccBase* gyroAcc,
+                BaroBase* baro,
                 SonarBase* sonar)
         {
             status |= ENGINE_STATUS_INIT;
@@ -36,14 +37,23 @@ namespace pegasus
 
             this->rc = rc;
             this->gyroacc = gyroAcc;
+            this->baro = baro;
             this->sonar = sonar;
             _mTimer = timer;
 
             initConfig(); // Load config
 
+            altHold = {0.0f, 0};
+
             _mRollPID.setConfig(p.lvlRollPID, p.rateRollPID);
             _mPitchPID.setConfig(p.lvlPitchPID, p.ratePitchPID);
             _mYawPID.setConfig(p.lvlYawPID, p.rateYawPID);
+            _mAltSonarPID.setConfig(p.altSonarPID);
+
+            rc->throttle.setConfig(p.calRcThrottle.min, p.calRcThrottle.center, p.calRcThrottle.max);
+            rc->roll.setConfig(p.calRcRoll.min, p.calRcRoll.center, p.calRcRoll.max);
+            rc->pitch.setConfig(p.calRcPitch.min, p.calRcPitch.center, p.calRcPitch.max);
+            rc->yaw.setConfig(p.calRcYaw.min, p.calRcYaw.center, p.calRcYaw.max);
 
             initMixing(p.frameType);
 
@@ -84,7 +94,7 @@ namespace pegasus
 
             pegasus::hal::ds.read( (uint32_t*)&tmp, sizeof(tmp));
 
-            if (tmp.version > p.version) {
+            if (tmp.version > p.version && tmp.version != 0xFF && p.version != 1) {
                 p = tmp;
             } else {
                 pegasus::hal::ds.save( (uint32_t*)&p, sizeof(p));
@@ -116,6 +126,10 @@ namespace pegasus
                 status |= ENGINE_STATUS_GYROACC_OK;
             }
 
+            if (baro->init()) {
+                status |= ENGINE_STATUS_BARO_OK;
+            }
+
             if (sonar->init()) {
                 status |= ENGINE_STATUS_SONAR_OK;
             }
@@ -133,56 +147,60 @@ namespace pegasus
                     uavlink_message_pid_t pid;
                     uavlink_message_pid_decode(&msg, &pid);
 
-                    p.lvlPitchPID.kP = (pid.stabKP / 100.0f);
-                    p.lvlPitchPID.kI = (pid.stabKI / 100.0f);
-                    p.ratePitchPID.kP = (pid.pitchKP / 100.0f);
-                    p.ratePitchPID.kI = (pid.pitchKI / 100.0f);
-                    p.ratePitchPID.kD = (pid.pitchKD / 100.0f);
-
-                    p.lvlRollPID.kP = (pid.stabKP / 100.0f);
-                    p.lvlRollPID.kI = (pid.stabKI / 100.0f);
-                    p.rateRollPID.kP = (pid.rollKP / 100.0f);
-                    p.rateRollPID.kI = (pid.rollKI / 100.0f);
-                    p.rateRollPID.kD = (pid.rollKD / 100.0f);
-
-                    //p.lvlYawPID.kP = (pid.stabKP / 100.0f);
-                    //p.lvlYawPID.kI = (pid.stabKI / 100.0f);
-                    p.rateYawPID.kP = (pid.yawKP / 100.0f);
-                    p.rateYawPID.kI = (pid.yawKI / 100.0f);
-                    p.rateYawPID.kD = (pid.yawKD / 100.0f);
+                    memcpy(&p.lvlPitchPID, &pid.level, sizeof(pid.level));
+                    memcpy(&p.lvlRollPID, &pid.level, sizeof(pid.level));
+                    memcpy(&p.ratePitchPID, &pid.tilt, sizeof(pid.tilt));
+                    memcpy(&p.rateRollPID, &pid.tilt, sizeof(pid.tilt));
+                    memcpy(&p.rateYawPID, &pid.yaw, sizeof(pid.yaw));
+                    memcpy(&p.altSonarPID, &pid.altSonar, sizeof(pid.altSonar));
 
                     _mRollPID.setConfig(p.lvlRollPID, p.rateRollPID);
                     _mPitchPID.setConfig(p.lvlPitchPID, p.ratePitchPID);
                     _mYawPID.setConfig(p.lvlYawPID, p.rateYawPID);
 
+                    _mAltSonarPID.setConfig(p.altSonarPID);
+
                     ack = msg.cmd + msg.len;
                     blinkLed(LED_YELLOW, 50, 10, false);
                     break;
+                case UAVLINK_MSG_RC_CALIBRATION:
+                    uavlink_message_rc_calibration_t rcCalib;
+                    uavlink_message_rc_calibration_decode(&msg, &rcCalib);
 
+                    memcpy(&p.calRcThrottle, &rcCalib.throttle, sizeof(rcCalib.throttle));
+                    memcpy(&p.calRcRoll, &rcCalib.roll, sizeof(rcCalib.roll));
+                    memcpy(&p.calRcPitch, &rcCalib.pitch, sizeof(rcCalib.pitch));
+                    memcpy(&p.calRcYaw, &rcCalib.yaw, sizeof(rcCalib.yaw));
+
+                    rc->throttle.setConfig(p.calRcThrottle.min, p.calRcThrottle.center, p.calRcThrottle.max);
+                    rc->roll.setConfig(p.calRcRoll.min, p.calRcRoll.center, p.calRcRoll.max);
+                    rc->pitch.setConfig(p.calRcPitch.min, p.calRcPitch.center, p.calRcPitch.max);
+                    rc->yaw.setConfig(p.calRcYaw.min, p.calRcYaw.center, p.calRcYaw.max);
+
+                    ack = msg.cmd + msg.len;
+                    blinkLed(LED_YELLOW, 50, 10, false);
+                    break;
                 case UAVLINK_STATE:
                     switch(msg.datas[0]) {
-                        case UAVLINK_RCCALIBRATION:
-                            set(ENGINE_RCCALIBRATION);
-                            ack = msg.cmd + ENGINE_RCCALIBRATION;
-                            break;
-                        case UAVLINK_ESCCALIBRATION:
-                            if (!is(ENGINE_ARMED)) {
-                                set(ENGINE_ESCCALIBRATION);
-                                ack = msg.cmd + ENGINE_ESCCALIBRATION;
-                            } else {
-                                blinkLed(LED_RED, 50, 10, false);
-                            }
-                            break;
                         case UAVLINK_SYS_SAVECONFIG:
                             if (!is(ENGINE_ARMED)) {
+                                pegasus::hal::Processor::disableInterrupts();
+                                p.version++;
                                 pegasus::hal::ds.save((uint32_t*)&p, sizeof(p));
-                                blinkLed(LED_YELLOW, 10, 10, false);
+                                pegasus::hal::Processor::enableInterrupts();
+                                blinkLed(LED_WHITE, 50, 5, false);
                             } else {
                                 blinkLed(LED_RED, 50, 10, false);
                             }
                             break;
-                        case UAVLINK_PING:
-                            telemetryEnable = true;
+                        case UAVLINK_SYS_PID:
+                            uavlink_message_pid_t pids;
+                            memcpy(&pids.level, &p.lvlRollPID, sizeof(pids.level));
+                            memcpy(&pids.tilt, &p.ratePitchPID, sizeof(pids.tilt));
+                            memcpy(&pids.yaw, &p.rateYawPID, sizeof(pids.yaw));
+                            memcpy(&pids.altSonar, &p.altSonarPID, sizeof(pids.altSonar));
+
+                            pegasus::core::com.send(uavlink_message_pid_encode(&pids));
                             break;
                     }
                     break;
@@ -209,17 +227,35 @@ namespace pegasus
 
             Attitude_t att = attitude.getAttitude();
 
-            _mRoll  = _mRollPID.calculate(DEG2RAD(rc->roll.value), att.euler.roll, att.gyro.x, 0.005f);
-            _mPitch = _mPitchPID.calculate(DEG2RAD(rc->pitch.value), att.euler.pitch, att.gyro.y, 0.005f);
-            _mYaw   = _mYawPID.calculate(DEG2RAD(rc->yaw.value), att.gyro.z, 0.005f);
+            _mRoll  = _mRollPID.calculate(DEG2RAD(rc->roll.value), att.euler.roll, -att.gyro.x, 0.005f, PID_PARRA);
+            _mPitch = _mPitchPID.calculate(DEG2RAD(rc->pitch.value), att.euler.pitch, -att.gyro.y, 0.005f, PID_PARRA);
+            _mYaw   = _mYawPID.calculate(DEG2RAD(rc->yaw.value), att.euler.yaw, -att.gyro.z, 0.005f, PID_YAW_MANUAL);
 
-            if (is(ENGINE_ARMED)) {
-                mix.update(Math::constrain(rc->throttle.value, IDLE_ESC, MAX_ESC) , _mRoll, _mPitch, _mYaw);
-            } else if (!is(ENGINE_ESCCALIBRATION)) {
-                mix.write(VAL_PWM_MIN);
+            if (sv.isArmed()) {
+                float thrust;
+
+                /* If alt Hold thrust is softward set */
+                if (sv.altHoldEnabled()) {
+                    thrust = sv.getAltHoldThrottle(&_mAltSonarPID, 0.005f);
+                } else {
+                    thrust = rc->throttle.getInput();
+                }
+
+                if (thrust <= p.escIDLE) {
+                    mix.write(p.escIDLE);
+                } else {
+                    mix.update(Math::constrain(thrust, (float)p.escIDLE, (float)p.calRcThrottle.max) , _mRoll, _mPitch, _mYaw);
+                }
+            } else {
+                mix.write(p.calRcThrottle.min);
+            }
+
+            if (_mCounter % 2 == 0) { // 100Hz task
+                task100Hz();
             }
 
             _mCounter++;
+
         }
 
         /**
@@ -231,7 +267,7 @@ namespace pegasus
         }
 
         /**
-         * Exec by FC Thread
+         * Exec by Main Thread
          *
          * - Blink led
          */
@@ -253,12 +289,31 @@ namespace pegasus
                 status &= ~(ENGINE_RCERROR);
             }
 
-            if (is(ENGINE_ARMED)) {
+            if (sv.isArmed()) {
                 setLed(LED_RED, true);
-            } else if (is(ENGINE_ESCCALIBRATION)) {
-                infinyBlinkLed(LED_RED, 500);
-            } else if (!is(ENGINE_RCERROR)) {
-                setLed(LED_RED, false);
+                if (sv.altHoldEnabled()) {
+                    infinyBlinkLed(LED_WHITE, 100);
+                } else {
+                    setLed(LED_WHITE, false);
+                }
+            } else {
+                if (!is(ENGINE_RCERROR)) {
+                    setLed(LED_RED, false);
+                }
+                setLed(LED_WHITE, false);
+            }
+
+        }
+
+        void Engine::task100Hz()
+        {
+
+            /* Calculate baro */
+            if (is(ENGINE_STATUS_BARO_OK)) {
+                baro->update();
+                if (_mCounter % 4 == 0) {
+                    baro->calculate();
+                }
             }
 
         }

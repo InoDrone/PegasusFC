@@ -53,6 +53,13 @@ namespace pegasus
                 _mCsPin->high();
             }
 
+            void SpiDevice::writeByte(uint8_t addr)
+            {
+                _mCsPin->low();
+                _mSpi->writeByte(addr);
+                _mCsPin->high();
+            }
+
         } /* namespace stm32f4 */
     } /* namespace hal */
 } /* namespace pegasus */

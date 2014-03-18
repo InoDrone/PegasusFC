@@ -25,7 +25,7 @@
  * DEFAULT CONFIG
  */
 
-#define DFLT_CONFIG_VERSION 2
+#define DFLT_CONFIG_VERSION 0
 
 /* LEVEL ATTITUDE PITCH / ROLL */
 #define DFLT_LVL_TILT_P     100.0f
@@ -43,10 +43,15 @@
 #define DFLT_RATE_TILT_I   0.0f
 #define DFLT_RATE_TILT_D   1000.0f
 
-/* RATE PITCH / ROLL PID */
+/* RATE YAW PID */
 #define DFLT_RATE_YAW_P   150.0f
 #define DFLT_RATE_YAW_I   0.250f
 #define DFLT_RATE_YAW_D   0.25f
+
+/* ALT SONAR PID */
+#define DFLT_ALT_SONAR_P 10.0f
+#define DFLT_ALT_SONAR_I 0.0f
+#define DFLT_ALT_SONAR_D 0.0f
 
 #define DFLT_FRAME_TYPE FRAME_X4
 

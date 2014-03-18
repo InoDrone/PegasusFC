@@ -23,6 +23,12 @@
 class Math {
 
     public:
+
+        struct filter_t {
+            float fe;
+            float x0;
+        };
+
         static uint16_t constrain(uint16_t value, uint16_t min, uint16_t max) {
             if (value > max) {
                 return max;
@@ -51,6 +57,31 @@ class Math {
             }
 
             return value;
+        }
+
+        static void filterInit(filter_t *f, float fe)
+        {
+            f->fe = fe;
+            f->x0 = 0.0;
+        }
+
+        static float filter(filter_t *f, float v, float G_Dt)
+        {
+            float x1;
+
+            x1 = f->x0 + (v-f->x0) * (G_Dt / f->fe);
+            f->x0 = x1;
+
+            return x1;
+        }
+
+        static float filter(float current, float previous, float factor)
+        {
+            if (factor != 1.0) {
+                return (previous * (1.0f - factor) + (current * factor));
+            }
+
+            return current;
         }
 };
 

@@ -22,20 +22,14 @@
 #include "hal/include/DataStoreBase.h"
 #include "stm32f4xx_flash.h"
 
-#define PAGE_SIZE               (uint32_t)0x4000        /* Page size = 16KBytes */
-#define DS_START_ADDR           ((uint32_t) 0x08008000)
+#define PAGE_SIZE               (uint32_t)0x20000        /* Page size = 128KBytes */
+#define DS_START_ADDR           ((uint32_t) 0x080E0000)
 
 #define PAGE0_BASE_ADDR         ((uint32_t) (DS_START_ADDR + 0x0000))
 #define PAGE0_END_ADDR          ((uint32_t) (DS_START_ADDR + (PAGE_SIZE -1)))
 
-#define PAGE1_BASE_ADDR         ((uint32_t) (DS_START_ADDR + 0x4000))
-#define PAGE1_END_ADDR          ((uint32_t) (DS_START_ADDR + 2 * PAGE_SIZE))
-
-#define PAGE0_ID        0x010
+#define PAGE0_ID        FLASH_Sector_11 //0x010
 #define PAGE1_ID        0x018
-
-#define DS_STATUS_ADDR      ((uint32_t) PAGE0_BASE_ADDR)
-#define DS_VADDR(ptr)       ((uint32_t)(PAGE0_BASE_ADDR + (uint32_t)&(((StoredDatas*) 0)->ptr)) + 4)
 
 #define DS_ERROR        1
 #define DS_SUCCESS      0

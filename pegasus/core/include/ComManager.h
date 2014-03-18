@@ -21,6 +21,7 @@
 
 #include "core/include/Defs.h"
 #include "UAVLink.h"
+#include "core/include/Mutex.h"
 //#include "core/include/ComDeviceBase.h"
 
 #define COMMANAGER_MAX_DEVICE 2
@@ -56,6 +57,7 @@ namespace pegasus {
 
                 void ping();
                 bool isActive();
+                void task();
 
             private:
                 friend ComDeviceBase;
@@ -66,6 +68,8 @@ namespace pegasus {
                 uint8_t countDevice;
 
                 uint32_t lastPong;
+
+                MutexID txMutex;
         };
 
         extern ComManager com;

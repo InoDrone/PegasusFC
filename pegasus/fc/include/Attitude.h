@@ -43,6 +43,8 @@ namespace pegasus
             private:
                 long lastMillis;
                 DCM dcm;
+                uint32_t _mAltitudeUpdate;
+
                 struct AxisSum_t {
                     int16_t count;
 

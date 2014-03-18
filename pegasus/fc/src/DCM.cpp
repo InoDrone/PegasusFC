@@ -30,7 +30,7 @@ namespace pegasus{
 
         DCM::DCM() :
         _mKp(0.2f),
-        _mKi(0.0087f),
+        _mKi(0.0009f),//0.0087f
         _mOmegaP(0.0f, 0.0f, 0.0f),
         _mOmegaI(0.0f, 0.0f, 0.0f),
         _mDCM() {

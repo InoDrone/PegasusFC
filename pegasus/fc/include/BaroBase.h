@@ -16,24 +16,33 @@
  *  Project: InoDronePegasus
  */
 
-#ifndef TELEMETRY_H_
-#define TELEMETRY_H_
-#include "core/include/Thread.h"
+#ifndef BAROBASE_H_
+#define BAROBASE_H_
 
-using namespace pegasus::core;
+#include <inttypes.h>
 
-class Telemetry : public Thread
-{
-    public:
-        Telemetry();
+namespace pegasus {
+    namespace fc {
 
-    protected:
-        void run();
+        class BaroBase {
+                public:
 
-    private:
-        void addAttitude(uavlink_message_status_t * status);
-};
+                virtual bool init() = 0;
+                virtual void update() = 0;
+                virtual void calculate() = 0;
 
-extern Telemetry telemetry;
+                virtual float getPressure() = 0;
+                virtual float getTemp() = 0;
 
-#endif /* TELEMETRY_H_ */
+                float getAltitude() {
+                    return _mAltitude;
+                }
+
+                uint32_t lastUpdate;
+                float _mAltitude;
+        };
+    }
+}
+
+
+#endif /* BAROBASE_H_ */

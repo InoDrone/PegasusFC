@@ -53,6 +53,8 @@ namespace pegasus {
               extern void UART5Int(void);
 
               extern void OTGFSInt(void);
+
+              extern void DMA1_Stream6_IRQ(void); // UART 2 DM TX
             }
 
 
@@ -121,7 +123,7 @@ namespace pegasus {
                     /* DMA1_Stream5_IRQHandler */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* DMA1_Stream6_IRQHandler */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DMA1_Stream6_IRQ),
                     /* ADC_IRQHandler ADC1-3  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* CAN1_TX_IRQHandler CAN1 TX  */

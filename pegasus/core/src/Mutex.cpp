@@ -16,37 +16,42 @@
  *  Project: InoDronePegasus
  */
 
-#include "MaxSonar.h"
-#include "core/include/Trace.h"
-#include "core/include/MainTimer.h"
-#include <math.h>
+#include "core/include/Mutex.h"
+#include "core/include/ThreadManager.h"
 
-namespace pegasus {
-    namespace peripherals {
+namespace pegasus
+{
+    namespace core
+    {
+        uint8_t Mutex::mutexSize = 0;
+        bool Mutex::mutexLocked[64];
 
-        MaxSonar::MaxSonar(pegasus::hal::PWMInput* pwmIn) :
-                _mDistance(20.0f),
-                _mPwmIn(pwmIn)
+        uint8_t Mutex::create()
         {
-
+            mutexLocked[mutexSize] = false;
+            return mutexSize;
         }
 
-        bool MaxSonar::init() {
-            pegasus::core::trace.log("[MAXSONAR] Initialization");
-            _mPwmIn->attachInterrupt(this);
-            pegasus::core::trace.log("[MAXSONAR] Initialization done");
-
-            return true;
-        }
-
-        void MaxSonar::pwmUpdate(uint32_t pulseTime)
+        void Mutex::enter(uint8_t mutexId)
         {
-            float ndist = (float)((float)pulseTime/58.0f);
+            Thread *thread = threadManager.getCurrent();
 
-            if (abs(ndist - _mDistance) < SPIKE_FILTER) {
-                _mDistance = ndist;
+            if (!threadManager.isStarted()) return;
+
+            if (mutexLocked[mutexId]) {
+                /* Waiting to mutex released */
+                while (mutexLocked[mutexId]);
+
+                return;
             }
+
+            mutexLocked[mutexId] = true;
         }
 
-    } /* namespace peripherals */
+        void Mutex::leave(uint8_t mutexId)
+        {
+            mutexLocked[mutexId] = false;
+        }
+
+    } /* namespace core */
 } /* namespace pegasus */

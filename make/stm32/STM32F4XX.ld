@@ -18,9 +18,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-  VECTOR (rx)     : ORIGIN = 0x08000000, LENGTH = 16K
-  EEPROM (rx)     : ORIGIN = 0x08008000, LENGTH = 16K
-  FLASH (rx)      : ORIGIN = 0x08010000, LENGTH = 992K
+  FLASH (rx)     : ORIGIN = 0x08000000, LENGTH = 896K
+  VFLASH (rx)     : ORIGIN = 0x080E0000, LENGTH = 128k
   RAM (rwx)       : ORIGIN = 0x20000000, LENGTH = 128K
   CCM (rwx)       : ORIGIN = 0x10000000, LENGTH = 64K
 }
@@ -35,15 +34,7 @@ SECTIONS
     KEEP(*(.core_isr_vectors))
     KEEP(*(.isr_peripherals_vectors))
     . = ALIGN(4);
-  } >VECTOR
-  
-  /* DS Storage */
-  .dstorage :
-  {
-  	. = ALIGN(4);
-  		* (.dstorage)
-  	. = ALIGN(4);
-  } > EEPROM
+  } >FLASH
 
   /* The program code and other data goes into FLASH */
   .text :
@@ -125,7 +116,7 @@ SECTIONS
 
   /* Uninitialized data section */
   . = ALIGN(4);
-  .bss :
+  .bss (NOLOAD) :
   {
     /* This is used by the startup in order to initialize the .bss secion */
     _sbss = .;         /* define a global symbol at bss start */
@@ -140,13 +131,19 @@ SECTIONS
   } >RAM
 
   /* CCM */
-	.ccm : {
+	.ccm (NOLOAD) : {
 	  . = ALIGN(4);
-	  _sccm = .;
 	  *(.ccm)
-	  . = ALIGN(4);      
-	  _eccm = .;
+	  . = ALIGN(4); 
 	}>CCM
+	
+  /* DS Storage */
+  .dstorage (NOLOAD) :
+  {
+  	. = ALIGN(4);
+  		* (.dstorage)
+  	. = ALIGN(4);
+  } > VFLASH
 
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :

@@ -23,6 +23,17 @@
 #include "fc/include/SonarBase.h"
 #include "hal/include/PWMListener.h"
 
+#include "core/include/Math.h"
+
+
+
+#define MAX_SONAR_RANGE 700
+#define MIN_SONAR_RANGE 20
+
+#define SPIKE_FILTER 20 // cm;
+
+#define MAX_SONAR_ALT MAX_SONAR_RANGE
+
 namespace pegasus {
     namespace peripherals {
 
@@ -35,16 +46,16 @@ namespace pegasus {
                 /**
                  * Get sonar distance in cm
                  */
-                uint32_t getDistance();
+                float getDistance();
 
                 void pwmUpdate(uint32_t pulseTime);
 
             private:
                 pegasus::hal::PWMInput* _mPwmIn;
-                uint32_t _mDistance;
+                float _mDistance;
         };
 
-        INLINE uint32_t MaxSonar::getDistance()
+        INLINE float MaxSonar::getDistance()
         {
             return _mDistance;
         }

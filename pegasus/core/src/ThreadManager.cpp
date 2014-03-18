@@ -15,6 +15,7 @@ namespace pegasus {
 
         ThreadManager::ThreadManager() :
             _mIsStarted(false),
+            _mIsLocked(false),
             _mCurrentThread(&mainThread) {
 
         }
@@ -41,6 +42,8 @@ namespace pegasus {
 
         void ThreadManager::yield()
         {
+            if (_mIsLocked) return;
+
             pegasus::hal::ArchCore::yield();
         }
 

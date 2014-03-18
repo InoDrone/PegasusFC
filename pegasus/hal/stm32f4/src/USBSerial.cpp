@@ -80,6 +80,16 @@ namespace pegasus
                 //VCP_put_char(c);
             }
 
+            uint8_t USBSerial::read()
+            {
+                return 0;
+            }
+
+            bool USBSerial::available()
+            {
+                return false;
+            }
+
             namespace InterruptHandler
             {
                 void OTGFSInt()

@@ -32,7 +32,7 @@ namespace pegasus {
 
             const UartConfig uartConfig[UART_PORT_COUNT] = {
                     {{A, PIN10},{A, PIN9}, AlternateFunction::AF7, 115200}, /* UART 1 */
-                    {{A, PIN3},{A, PIN2}, AlternateFunction::AF7, 9600},  /* UART 2 */
+                    {{A, PIN3},{A, PIN2}, AlternateFunction::AF7, 9600},  /* UART 2 9600 */
                     {{D, PIN9},{D, PIN8}, AlternateFunction::AF7, 115200}   /* UART 3 */
             };
 
@@ -59,7 +59,7 @@ namespace pegasus {
 
 
         const PortMapping::PinInfo PORTMAP[PORT_MAPPING_MAX_PINS] = {
-                {gpio::C, gpio::PIN6 , gpio::AlternateFunction::AF3, &timer::tim8, timer::CHANNEL_1, SERVO_SPEED}, // MOTOR1 C6 (TIM8 CH1)
+                {gpio::C, gpio::PIN6 , gpio::AlternateFunction::AF3, &timer::tim8, timer::CHANNEL_1, ESC_SPEED}, // MOTOR1 C6 (TIM8 CH1)
                 {gpio::C, gpio::PIN7 , gpio::AlternateFunction::AF3, &timer::tim8, timer::CHANNEL_2, ESC_SPEED}, // MOTOR2 C7 (TIM8 CH2)
                 {gpio::C, gpio::PIN8 , gpio::AlternateFunction::AF3, &timer::tim8, timer::CHANNEL_3, ESC_SPEED}, // MOTOR3 C8 (TIM8 CH3)
                 {gpio::C, gpio::PIN9 , gpio::AlternateFunction::AF3, &timer::tim8, timer::CHANNEL_4, ESC_SPEED}, // MOTOR4 C9 (TIM8 CH4)
@@ -106,9 +106,9 @@ pegasus::peripherals::MPU6000 mpu6000(&spiMPU6000);
  */
 //const pegasus::hal::pwm::PWMConfig sonarConfig = {{B, PIN0} , AlternateFunction::AF2, 0xFFFF};
 
-pegasus::hal::Gpio sonarIo(B, PIN0);
-pegasus::hal::TimerChannel sonarChannel(&tim3, pegasus::hal::timer::CHANNEL_3); // TIM3_C3
-pegasus::hal::PWMInput sonarInput(&sonarIo, AlternateFunction::AF2, &sonarChannel, 0xFFFF);
+pegasus::hal::Gpio sonarIo(E, PIN6);
+pegasus::hal::TimerChannel sonarChannel(&tim9, pegasus::hal::timer::CHANNEL_2); // TIM3_C3
+pegasus::hal::PWMInput sonarInput(&sonarIo, AlternateFunction::AF3, &sonarChannel, 0xFFFF);
 pegasus::peripherals::MaxSonar sonar(&sonarInput);
 
 /**
@@ -119,6 +119,9 @@ pegasus::peripherals::Led ledWhite(E, PIN2);
 pegasus::peripherals::Led ledRed(E, PIN1);
 pegasus::peripherals::Led ledBlue(E, PIN3);
 
+pegasus::hal::Gpio baroCSPin(E, PIN15);
+pegasus::hal::SpiDevice spiBARO(&pegasus::hal::spi::spi1, &baroCSPin);
+pegasus::peripherals::MS5611 MS5611(&spiBARO);
 
 void initPlatform()
 {
@@ -163,12 +166,12 @@ void initPlatform()
     pegasus::fc::rc.roll.init(RC_ROLL);
     pegasus::fc::rc.pitch.init(RC_PITCH);
     pegasus::fc::rc.yaw.init(RC_YAW);
-    //pegasus::fc::rc.aux1.init();
+    pegasus::fc::rc.aux1.init(RC_ALT_HOLD);
     //pegasus::fc::rc.aux2.init();
 
 
     /* INIT Engine */
-    pegasus::fc::engine.init(&tim6, &pegasus::fc::rc, &mpu6000, &sonar);
+    pegasus::fc::engine.init(&tim6, &pegasus::fc::rc, &mpu6000, &MS5611, &sonar);
 }
 
 

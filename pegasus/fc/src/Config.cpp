@@ -31,4 +31,14 @@ uint16_t loadDefaultConfig(Config_t* p)
 
     p->ratePitchPID = p->rateRollPID = { DFLT_RATE_TILT_P, DFLT_RATE_TILT_I, DFLT_RATE_TILT_D };
     p->rateYawPID = {DFLT_RATE_YAW_P, DFLT_RATE_YAW_I,DFLT_RATE_YAW_D};
+
+    p->calRcThrottle.min= p->calRcRoll.min = p->calRcPitch.min = p->calRcYaw.min = VAL_PWM_MIN;
+    p->calRcThrottle.max= p->calRcRoll.max = p->calRcPitch.max = p->calRcYaw.max = VAL_PWM_MAX;
+    p->calRcThrottle.center= p->calRcRoll.center = p->calRcPitch.center = p->calRcYaw.center = VAL_PWM_CENTER;
+
+    p->escIDLE = IDLE_ESC;
+
+    p->altSonarPID.kP = DFLT_ALT_SONAR_P;
+    p->altSonarPID.kI = DFLT_ALT_SONAR_I;
+    p->altSonarPID.kD = DFLT_ALT_SONAR_D;
 }

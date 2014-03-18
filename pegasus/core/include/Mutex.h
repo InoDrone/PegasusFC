@@ -16,24 +16,31 @@
  *  Project: InoDronePegasus
  */
 
-#ifndef TELEMETRY_H_
-#define TELEMETRY_H_
-#include "core/include/Thread.h"
+#ifndef MUTEX_H_
+#define MUTEX_H_
 
-using namespace pegasus::core;
+#include <inttypes.h>
 
-class Telemetry : public Thread
+namespace pegasus
 {
-    public:
-        Telemetry();
+    namespace core
+    {
 
-    protected:
-        void run();
+        typedef uint8_t MutexID;
 
-    private:
-        void addAttitude(uavlink_message_status_t * status);
-};
+        class Mutex
+        {
+            public:
+                static MutexID create();
+                static void enter(MutexID mutexId);
+                static void leave(MutexID mutexId);
 
-extern Telemetry telemetry;
+            private:
+                static bool mutexLocked[64];
+                static MutexID mutexSize;
+        };
 
-#endif /* TELEMETRY_H_ */
+    } /* namespace core */
+} /* namespace pegasus */
+
+#endif /* MUTEX_H_ */

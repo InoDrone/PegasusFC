@@ -23,6 +23,8 @@
 #define CYCLES_PER_MICROSECOND (F_CPU/1000000)
 #define SYSTICK_RELOAD_VAL     ((F_CPU/1000) - 1) // for 1ms
 
+//#define BT_MODE
+
 typedef uint32_t u32;
 
 /**

@@ -27,7 +27,7 @@
 namespace pegasus {
     namespace core {
 
-        class ComDeviceBase : public pegasus::hal::ByteListener, public pegasus::core::io::Print {
+        class ComDeviceBase : public pegasus::core::io::Print {
             public:
                 ComDeviceBase() :
                     _mId(-1),
@@ -37,6 +37,9 @@ namespace pegasus {
                 virtual void init() = 0;
                 virtual bool open() = 0;
                 virtual bool close() = 0;
+
+                virtual uint8_t read() = 0;
+                virtual bool available() = 0;
 
                 using Print::write;
 
@@ -55,12 +58,6 @@ namespace pegasus {
                 void addReceiver(ComManager* com, int8_t deviceId) {
                     _mComManager = com;
                     setId(deviceId);
-                }
-
-                void receive(uint8_t byte) {
-                    if (_mComManager && _mId != -1) {
-                        _mComManager->receive(byte, _mId);
-                    }
                 }
 
             private:

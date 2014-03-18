@@ -16,24 +16,33 @@
  *  Project: InoDronePegasus
  */
 
-#ifndef TELEMETRY_H_
-#define TELEMETRY_H_
-#include "core/include/Thread.h"
+#ifndef CRITICALSECTION_H_
+#define CRITICALSECTION_H_
 
-using namespace pegasus::core;
+#include "core/include/Defs.h"
+#include "core/include/ThreadManager.h"
 
-class Telemetry : public Thread
+namespace pegasus
 {
-    public:
-        Telemetry();
+    namespace core
+    {
 
-    protected:
-        void run();
+        class CriticalSection
+        {
+            public:
+                CriticalSection();
+                ~CriticalSection();
+        };
 
-    private:
-        void addAttitude(uavlink_message_status_t * status);
-};
+        INLINE CriticalSection::CriticalSection() {
+            threadManager.lock();
+        }
 
-extern Telemetry telemetry;
+        INLINE CriticalSection::~CriticalSection() {
+            threadManager.unlock();
+        }
 
-#endif /* TELEMETRY_H_ */
+    } /* namespace core */
+} /* namespace pegasus */
+
+#endif /* CRITICALSECTION_H_ */

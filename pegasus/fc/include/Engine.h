@@ -14,6 +14,7 @@
 #include "fc/include/Config.h"
 #include "fc/include/RC.h"
 #include "fc/include/GyroAccBase.h"
+#include "fc/include/BaroBase.h"
 #include "fc/include/SonarBase.h"
 #include "fc/include/Attitude.h"
 #include "fc/include/Pid.h"
@@ -26,6 +27,7 @@
 #define ENGINE_STATUS_GYROACC_OK        _BIT(3)
 #define ENGINE_STATUS_MAG_OK            _BIT(4)
 #define ENGINE_STATUS_SONAR_OK          _BIT(5)
+#define ENGINE_STATUS_BARO_OK           _BIT(6)
 
 // Error
 #define ENGINE_RCERROR                  _BIT(10)
@@ -35,8 +37,7 @@
 #define ENGINE_INFLIGHT                 _BIT(21)
 #define ENGINE_TAKEOFF                  _BIT(22)
 #define ENGINE_LANDING                  _BIT(23)
-#define ENGINE_RCCALIBRATION            _BIT(24)
-#define ENGINE_ESCCALIBRATION           _BIT(25)
+#define ENGINE_ALT_HOLD                 _BIT(24)
 
 #define MAX_LED 4
 #define LED_YELLOW         0
@@ -53,7 +54,7 @@ namespace pegasus
             public:
                 Engine();
 
-                void init(pegasus::hal::TimerBase_t* timer, RC* _rc, GyroAccBase* gyroAcc, SonarBase* sonar);
+                void init(pegasus::hal::TimerBase_t* timer, RC* _rc, GyroAccBase* gyroAcc, BaroBase* baro, SonarBase* sonar);
                 bool addLed(uint8_t idx, pegasus::peripherals::Led* led);
 
                 uint8_t uavlinkReceive(const uavlink_message_t msg);
@@ -79,17 +80,22 @@ namespace pegasus
 
                 GyroAccBase* gyroacc;
                 SonarBase* sonar;
+                BaroBase* baro;
                 uint32_t status;
 
                 pegasus::peripherals::Led* leds[MAX_LED];
                 RC* rc;
 
-                bool telemetryEnable;
+                struct  {
+                        float distance;
+                        uint16_t throttle;
+                } altHold;
 
             private:
                 void initConfig();
                 void initMixing(uint8_t frameType);
                 void initSensors();
+                void task100Hz();
 
                 pegasus::hal::TimerBase_t* _mTimer;
 
@@ -101,6 +107,8 @@ namespace pegasus
                 Pid _mRollPID;
                 Pid _mPitchPID;
                 Pid _mYawPID;
+
+                Pid _mAltSonarPID;
 
                 uint32_t _mCounter;
         };

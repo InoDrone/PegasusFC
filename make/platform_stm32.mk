@@ -85,7 +85,7 @@ libSTM32:
 $(PROJECTELF): $(OBJS)
 	$(eval PEGASUSLIB_OBJ := $(shell find $(PEGASUS_DIR)/build/lib/ -type f -name '*.o'))
 	$(eval PEGASUS_OBJ := $(wildcard $(PEGASUS_DIR)/build/*.o))
-	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $(PEGASUSLIB_OBJ) $(PEGASUS_OBJ) $^ -o $@ -lgcc -lm -lc
+	$(CXX) $(DEFINES) $(INCLUDES) $(LDFLAGS) $(PEGASUSLIB_OBJ) $(PEGASUS_OBJ) $^ -o $@ -L$(STM_DIR)/lib -lstm32f4 -lgcc -lm -lc
 
 $(PROJECTHEX): $(PROJECTELF)
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
