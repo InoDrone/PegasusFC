@@ -18,6 +18,8 @@
 #include "fc/include/SonarBase.h"
 #include "fc/include/Attitude.h"
 #include "fc/include/Pid.h"
+#include "fc/include/GPS.h"
+#include "fc/include/GPSBase.h"
 #include "peripherals/Led.h"
 #include "hal/include/InterruptListener.h"
 #include "UAVLink.h"
@@ -28,6 +30,7 @@
 #define ENGINE_STATUS_MAG_OK            _BIT(4)
 #define ENGINE_STATUS_SONAR_OK          _BIT(5)
 #define ENGINE_STATUS_BARO_OK           _BIT(6)
+#define ENGINE_STATUS_GPS_OK			_BIT(7)
 
 // Error
 #define ENGINE_RCERROR                  _BIT(10)
@@ -45,6 +48,14 @@
 #define LED_RED            2
 #define LED_BLUE           3
 
+#ifdef HIGH_SPEED_ATT
+#define ATT_LOOP_FREQ	400
+#define ATT_LOOP_SEC	0.0025f
+#else
+#define ATT_LOOP_FREQ	200
+#define ATT_LOOP_SEC	0.005f
+#endif
+
 namespace pegasus
 {
     namespace fc
@@ -54,7 +65,12 @@ namespace pegasus
             public:
                 Engine();
 
-                void init(pegasus::hal::TimerBase_t* timer, RC* _rc, GyroAccBase* gyroAcc, BaroBase* baro, SonarBase* sonar);
+                void init(pegasus::hal::TimerBase_t* timer,
+                			RC* _rc,
+                			GyroAccBase* gyroAcc,
+                			BaroBase* baro,
+                			SonarBase* sonar,
+                			GPSBase* gpsPeriph);
                 bool addLed(uint8_t idx, pegasus::peripherals::Led* led);
 
                 uint8_t uavlinkReceive(const uavlink_message_t msg);
@@ -81,6 +97,7 @@ namespace pegasus
                 GyroAccBase* gyroacc;
                 SonarBase* sonar;
                 BaroBase* baro;
+                GPSBase* gps;
                 uint32_t status;
 
                 pegasus::peripherals::Led* leds[MAX_LED];

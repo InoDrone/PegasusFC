@@ -34,6 +34,8 @@ namespace pegasus {
 
                   virtual uint8_t getUniqId() = 0;
 
+                  virtual uint32_t getCounter() = 0;
+
                   Reg_t* getReg();
 
               protected:

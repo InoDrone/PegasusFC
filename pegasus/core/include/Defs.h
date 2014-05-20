@@ -42,7 +42,7 @@ namespace pegasus {
  * VERSION
  ****************************************************/
 #define PEGASUS_VB 0    // Prototypage version
-#define PEGASUS_V1 1    // Serie version 1
+#define PEGASUS_V2B 1   // Serie version 1
 
 /****************************************************
  * ESC / SERVO

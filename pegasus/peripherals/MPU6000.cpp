@@ -48,6 +48,7 @@ namespace pegasus
         bool MPU6000::init()
         {
             pegasus::core::trace.log("[MPU6000] Initialization");
+            pegasus::core::mainTimer.delay(100); // Waiting for initialization MPU
             _mAutoSampling = false;
 
             pegasus::hal::Gpio intPin(pegasus::gpio::E, pegasus::gpio::PIN8);
@@ -57,6 +58,7 @@ namespace pegasus
 
             uint8_t buffer = 0x0;
             _mSpi->read(&buffer, MPU6000_RA_WHO_AM_I | SPI_READWRITE_CMD, 1);
+            pegasus::core::trace.log("[MPU6000] ID : %d", (buffer & 0x7E));
             if ((buffer & 0x7E) == 0x68) {
                 pegasus::core::trace.log("[MPU6000] ping OK");
             } else {

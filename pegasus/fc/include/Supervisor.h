@@ -68,6 +68,14 @@ namespace pegasus
                     _mIsArmed = farm;
                 }
 
+                uint16_t getAttitudeLoopTime() const
+                {
+                	return attitudeLoopTime;
+                }
+
+                void beginAttitudeLoop(pegasus::hal::TimerBase_t* timer);
+                void endAttitudeLoop(pegasus::hal::TimerBase_t* timer);
+
 
             private:
                 altHold_t _mAltHold;
@@ -78,6 +86,9 @@ namespace pegasus
 
                 bool arm();
                 bool disarm();
+
+                uint16_t attitudeLoopTime;
+                uint32_t attitudeCalculatorStart;
         };
 
         extern Supervisor sv;

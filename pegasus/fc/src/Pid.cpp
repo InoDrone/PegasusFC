@@ -102,5 +102,11 @@ namespace pegasus {
         {
             return calculate(target, current, G_Dt, &rate);
         }
+
+        void Pid::reset()
+        {
+        	level.integral = 0;
+        	rate.integral = 0;
+        }
     }
 }

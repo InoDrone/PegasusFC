@@ -50,8 +50,8 @@ namespace pegasus
                     _mMotorCount = 4;
                     break;
                 case FRAME_X4:
-                    _mValues[MOTOR1] = MIX(+1,-1,+1); // Front Left
-                    _mValues[MOTOR2] = MIX(-1,-1,-1); // Front Right
+                    _mValues[MOTOR1] = MIX(-1,-1,-1); // Front Right
+                    _mValues[MOTOR2] = MIX(+1,-1,+1); // Front Left
                     _mValues[MOTOR3] = MIX(+1,+1,-1); // Rear Left
                     _mValues[MOTOR4] = MIX(-1,+1,+1); // Rear Right
 

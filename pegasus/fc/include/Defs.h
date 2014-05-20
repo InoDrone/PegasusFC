@@ -27,6 +27,8 @@ namespace pegasus {
 
             enum Service {
                 DRDY_ACCGYRO,
+                BARO_UPDATED,
+                SONAR_UPDATED,
                 SERVICE_SIZE
             };
         }
@@ -72,6 +74,19 @@ struct Attitude_t {
         float altitude;
         float pressure;
         float temperature;
+};
+
+struct GPSDatas_t {
+	uint32_t iTOW;
+
+	double lat;
+	double lon;
+	float height;
+	float hAcc;
+	float vAcc;
+
+	uint8_t sats;
+	uint8_t fixType;
 };
 
 

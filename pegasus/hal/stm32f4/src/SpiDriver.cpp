@@ -35,6 +35,9 @@ namespace pegasus
                 if (reg == SPI1) {
                     RCC->APB2ENR &= ~(RCC_SPI1); // Reset
                     RCC->APB2ENR |= RCC_SPI1;
+                } else if (reg == SPI2) {
+                	RCC->APB1ENR &= ~(RCC_SPI2);
+                    RCC->APB1ENR |= RCC_SPI2;
                 } else if (reg == SPI5) {
                     RCC->APB2ENR &= ~(RCC_SPI5); // Reset
                     RCC->APB2ENR |= RCC_SPI5;

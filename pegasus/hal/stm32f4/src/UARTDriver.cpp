@@ -29,7 +29,7 @@ namespace pegasus
             using namespace pegasus::hal::uart;
             using namespace pegasus::hal::gpio;
 
-            UARTDriver* UARTDriver::dmaPtr[2][7];
+            UARTDriver* UARTDriver::dmaPtr[2][8];
 
             UARTDriver::UARTDriver(USART_TypeDef* reg, UartConfig config) :
                 UARTDriverBase_t(reg, config),
@@ -68,29 +68,57 @@ namespace pegasus
                 _mReg->CR2 = cr2;
                 _mReg->CR3 = cr3;
 
-                setBaudRate();
-
-                memset(&tx, 0, sizeof(DMABuffer));
-                memset(&rx, 0, sizeof(DMABuffer));
-
-                enableDMA();
-
-                print("\r\n+INQ=1\r\n");
+                setBaudRate(_mConfig.bauds);
             }
 
             void UARTDriver::enableDMA()
             {
                 DMA_InitTypeDef DMA_InitStructure;
                 NVIC_InitTypeDef NVIC_InitStructure;
-                if (_mReg == USART2) {
+
+                memset(&tx, 0, sizeof(DMABuffer));
+                memset(&rx, 0, sizeof(DMABuffer));
+
+                if (_mReg == USART1) {
+                    rx.channel = DMA_Channel_4;
+                    rx.stream = DMA2_Stream5;
+                    rx.streamNum = 5;
+                    rx.DMAx = 1;
+                    // RX -> DMA 2 CHANNEL 4 Stream 5
+                    // TX -> DMA 2 CHANNEL 4 Stream 7
+                    tx.channel = DMA_Channel_4;
+                    tx.stream = DMA2_Stream7;
+                    tx.streamNum = 7;
+                    tx.DMAx = 1;
+                    tx.dmaNVIC = DMA2_Stream7_IRQn;
+
+                    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+                } else if (_mReg == USART2) {
                     rx.channel = DMA_Channel_4;
                     rx.stream = DMA1_Stream5;
                     rx.streamNum = 5;
+                    rx.DMAx = 0;
                     // RX -> DMA 1 CHANNEL 4 Stream 5
                     // TX -> DMA 1 CHANNEL 4 Stream 6
                     tx.channel = DMA_Channel_4;
                     tx.stream = DMA1_Stream6;
                     tx.streamNum = 6;
+                    tx.DMAx = 0;
+                    tx.dmaNVIC = DMA1_Stream6_IRQn;
+
+                    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+                } else if (_mReg == USART3) {
+                    rx.channel = DMA_Channel_4;
+                    rx.stream = DMA1_Stream1;
+                    rx.streamNum = 1;
+                    rx.DMAx = 0;
+                    // RX -> DMA 1 CHANNEL 4 Stream 5
+                    // TX -> DMA 1 CHANNEL 4 Stream 6
+                    tx.channel = DMA_Channel_4;
+                    tx.stream = DMA1_Stream3;
+                    tx.streamNum = 3;
+                    tx.DMAx = 0;
+                    tx.dmaNVIC = DMA1_Stream3_IRQn;
 
                     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
                 } else {
@@ -141,7 +169,7 @@ namespace pegasus
 
                 _mReg->CR3 |= 0x80; //  Enable TX DMA
 
-                NVIC_InitStructure.NVIC_IRQChannel = DMA1_Stream6_IRQn;
+                NVIC_InitStructure.NVIC_IRQChannel = tx.dmaNVIC;
                 NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 2;
                 NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
                 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -150,8 +178,13 @@ namespace pegasus
 
             bool UARTDriver::open()
             {
+            	enableDMA();
                 _mReg->CR1 |= USART_CR1_UE;
                 //InterruptRegister::attachUARTInterrupt(this, _mReg);
+
+                if (_mReg == USART1) {
+                	//print("\r\n+INQ=1\r\n");
+                }
 
                 _mStarted = true;
                 _mConnected = true;
@@ -171,7 +204,7 @@ namespace pegasus
                 return true;
             }
 
-            void UARTDriver::setBaudRate()
+            void UARTDriver::setBaudRate(uint32_t bauds)
             {
                 uint32_t integer = 0, fractionnal = 0, tmp = 0;
                 Clocks clocks;
@@ -179,22 +212,23 @@ namespace pegasus
 
                 uint32_t clockSpeed;
                 if (_mReg == USART1 || _mReg == USART6) {
-                    clockSpeed = clocks.PCLK2;
+                    clockSpeed = clocks.PCLK2;//PCLK2
                 } else {
                     clockSpeed = clocks.PCLK1;
                 }
 
                 // if OVER8=0 only
-                integer = (25 * clockSpeed) / ( 4 * _mConfig.bauds);
+                integer = (25 * clockSpeed) / ( 4 * bauds);
                 tmp = (integer / 100) << 4;
                 fractionnal = integer - (100 * (tmp >> 4));
                 tmp |= (((fractionnal * 16) + 50) / 100) & ((uint8_t)0x0F);
 
                 _mReg->BRR = (uint16_t)tmp;
+
             }
 
             void UARTDriver::write(uint8_t c) {
-                if (btConnected) dmaWrite(c);
+                if (btConnected || _mReg != USART1) dmaWrite(c);
             }
 
             void UARTDriver::dmaWrite(uint8_t c)
@@ -224,17 +258,24 @@ namespace pegasus
                 } else if (c == '\n' && step == 0) {
                     step = 1;
                     pos = 0;
+                    memset(buffer,0, sizeof(buffer));
                 } else if (step == 1 && c == '\r') {
-                    pos = 0;
-                    step = 0;
 
                     if (buffer[0] == 'O' && buffer[1] == 'K') {
-                    } else if (buffer[9] == '4') {
-                        btConnected = true;
-                    } else if (buffer[9] != '4') {
-                        btConnected = false;
-                        print("\r\n+INQ=1\r\n");
+                    } else if( buffer[0] == '+' && buffer[1] == 'B' && buffer[2] == 'T' && pos >= 9) {
+                    	if (buffer[9] == '4') {
+                    	  btConnected = true;
+                    	} else if (buffer[9] == '1') {
+                    	  btConnected = false;
+                    	  print("\r\n+INQ=1\r\n");
+                    	}/* else if (buffer[9] == '0' && !btConnected) {
+                    		// Init modem
+                    		print("\r\n+INQ=1\r\n");
+                    	}*/
                     }
+
+                    pos = 0;
+                    step = 0;
                     return;
                 } else if (step == 1) {
                     buffer[pos++] = c;
@@ -256,7 +297,7 @@ namespace pegasus
                     }
 
                     tx.enabled = true;
-                    dmaPtr[0][tx.streamNum] = this;
+                    dmaPtr[tx.DMAx][tx.streamNum] = this;
 
                     tx.stream->M0AR = (uint32_t)&tx.buffer[tail];
                     tx.stream->NDTR = size;
@@ -281,7 +322,9 @@ namespace pegasus
                 }
 
                 /* Check BT module message */
-                btParseByte(c);
+                if (_mReg == USART1) {
+                	btParseByte(c);
+                }
 
                 return c;
             }
@@ -297,6 +340,18 @@ namespace pegasus
                 {
                     DMA_ClearFlag(DMA1_Stream6, DMA_FLAG_TCIF6 | DMA_FLAG_HTIF6 | DMA_FLAG_TEIF6 | DMA_FLAG_DMEIF6 | DMA_FLAG_FEIF6 );
                     (pegasus::hal::stm32f4::UARTDriver::dmaPtr[0][6])->dmaInterrupt();
+                }
+
+                void DMA2_Stream7_IRQ()
+                {
+                    DMA_ClearFlag(DMA2_Stream7, DMA_FLAG_TCIF7 | DMA_FLAG_HTIF7 | DMA_FLAG_TEIF7 | DMA_FLAG_DMEIF7 | DMA_FLAG_FEIF7 );
+                    (pegasus::hal::stm32f4::UARTDriver::dmaPtr[1][7])->dmaInterrupt();
+                }
+
+                void DMA1_Stream3_IRQ()
+                {
+                    DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3 | DMA_FLAG_HTIF3 | DMA_FLAG_TEIF3 | DMA_FLAG_DMEIF3 | DMA_FLAG_FEIF3 );
+                    (pegasus::hal::stm32f4::UARTDriver::dmaPtr[0][3])->dmaInterrupt();
                 }
             }
 

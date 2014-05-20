@@ -54,7 +54,9 @@ namespace pegasus {
 
               extern void OTGFSInt(void);
 
-              extern void DMA1_Stream6_IRQ(void); // UART 2 DM TX
+              extern void DMA1_Stream6_IRQ(void); // UART 2 DMA TX
+              extern void DMA1_Stream3_IRQ(void); // UART 3 DMA TX
+              extern void DMA2_Stream7_IRQ(void); // UART 1 DMA TX
             }
 
 
@@ -117,7 +119,7 @@ namespace pegasus {
                     /* DMA1_Stream2_IRQHandler */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* DMA1_Stream3_IRQHandler */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DMA1_Stream3_IRQ),
                     /* DMA1_Stream4_IRQHandler */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* DMA1_Stream5_IRQHandler */
@@ -229,7 +231,7 @@ namespace pegasus {
                     /* DMA2_Stream6_IRQHandler  */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* DMA2_Stream7_IRQHandler  */
-                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
+                    reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DMA2_Stream7_IRQ),
                     /* USART6_IRQHandler   */
                     reinterpret_cast<uint32_t>(pegasus::hal::stm32f4::InterruptHandler::DefaultHandler),
                     /* I2C3_EV_IRQHandler    */

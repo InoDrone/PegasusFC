@@ -144,7 +144,7 @@ namespace pegasus
         void MS5611::update()
         {
 
-            pegasus::hal::Processor::disableInterrupts();
+            //pegasus::hal::Processor::disableInterrupts();
             if (_mState == 0) {
                 _mD2Sum += readAdc();
                 _mD2Count++;
@@ -174,7 +174,7 @@ namespace pegasus
                     _mSpi->writeByte(MS561101BA_D1_4096);
                 }
             }
-            pegasus::hal::Processor::enableInterrupts();
+            //pegasus::hal::Processor::enableInterrupts();
 
         }
 
@@ -236,6 +236,8 @@ namespace pegasus
                 } else {
                     _mAltitude = Math::filter(altitude, _mAltitude, 0.1f);
                 }
+
+                CALLSV(pegasus::fc::service::BARO_UPDATED);
             }
 
         }

@@ -22,7 +22,7 @@
 #include "core/include/ComDeviceBase.h"
 #include "hal/stm32f4/include/Gpio.h"
 
-#include "usbd_cdc_core.h"
+//#include "usbd_cdc_core.h"
 
 extern "C" {
 

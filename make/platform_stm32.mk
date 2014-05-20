@@ -3,7 +3,7 @@ MCU 		:= STM32F40_41xxx
 UPLOADER 	:= dfu_util
 FAMILY		:= cortex-m4
 
-TOOLPATH=/opt/gcc-arm-embedded/bin
+TOOLPATH=/opt/gcc-arm-none-eabi/bin
 #TOOLPATH=/opt/sourcery/bin
 
 STLINKDIR = /home/alienx/Documents/Electronique/stlink

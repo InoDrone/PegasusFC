@@ -51,13 +51,13 @@ namespace pegasus
         void ComManager::write(char c, uint8_t type) {
             uint8_t i;
 
-            Mutex::enter(txMutex);
+            //Mutex::enter(txMutex);
             for (i=0;i<countDevice;i++) {
                 if (_mDevices[i].device->isConnected() && _mDevices[i].type == type) {
                     _mDevices[i].device->write(c);
                 }
             }
-            Mutex::leave(txMutex);
+            //Mutex::leave(txMutex);
         }
 
         void ComManager::print(const char msg[], uint8_t type)

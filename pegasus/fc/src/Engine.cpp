@@ -30,7 +30,8 @@ namespace pegasus
                 RC* rc,
                 GyroAccBase* gyroAcc,
                 BaroBase* baro,
-                SonarBase* sonar)
+                SonarBase* sonar,
+                GPSBase* gpsPeriph)
         {
             status |= ENGINE_STATUS_INIT;
             setLed(LED_YELLOW, true);
@@ -39,6 +40,7 @@ namespace pegasus
             this->gyroacc = gyroAcc;
             this->baro = baro;
             this->sonar = sonar;
+            this->gps = gpsPeriph;
             _mTimer = timer;
 
             initConfig(); // Load config
@@ -59,10 +61,9 @@ namespace pegasus
 
             initSensors();
 
-
             // Init Engine Timer
             _mTimer->disable();
-            _mTimer->setFreq(200); // 200hz
+            _mTimer->setFreq(ATT_LOOP_FREQ); // 200hz or high speed 400Hz
             _mTimer->enable();
             pegasus::hal::InterruptRegister::attachTimerInt(this, _mTimer);
 
@@ -132,6 +133,11 @@ namespace pegasus
 
             if (sonar->init()) {
                 status |= ENGINE_STATUS_SONAR_OK;
+            }
+
+            if (gpsTask.init(gps)) {
+            	status |= ENGINE_STATUS_GPS_OK;
+            	gpsTask.start(); // Start GPS thread
             }
             //mag->init();
             //rc->init();
@@ -222,21 +228,22 @@ namespace pegasus
          */
         void Engine::interrupt()
         {
-            rc->check();
+        	sv.beginAttitudeLoop(_mTimer);
+
             attitude.update();
 
             Attitude_t att = attitude.getAttitude();
 
-            _mRoll  = _mRollPID.calculate(DEG2RAD(rc->roll.value), att.euler.roll, -att.gyro.x, 0.005f, PID_PARRA);
-            _mPitch = _mPitchPID.calculate(DEG2RAD(rc->pitch.value), att.euler.pitch, -att.gyro.y, 0.005f, PID_PARRA);
-            _mYaw   = _mYawPID.calculate(DEG2RAD(rc->yaw.value), att.euler.yaw, -att.gyro.z, 0.005f, PID_YAW_MANUAL);
+            _mRoll  = _mRollPID.calculate(DEG2RAD(rc->roll.value), att.euler.roll, att.gyro.x, ATT_LOOP_SEC, PID_PARRA);
+            _mPitch = _mPitchPID.calculate(DEG2RAD(rc->pitch.value), att.euler.pitch, att.gyro.y, ATT_LOOP_SEC, PID_PARRA);
+            _mYaw   = _mYawPID.calculate(DEG2RAD(rc->yaw.value), att.euler.yaw, att.gyro.z, ATT_LOOP_SEC, PID_YAW_MANUAL);
 
             if (sv.isArmed()) {
                 float thrust;
 
                 /* If alt Hold thrust is softward set */
                 if (sv.altHoldEnabled()) {
-                    thrust = sv.getAltHoldThrottle(&_mAltSonarPID, 0.005f);
+                    thrust = sv.getAltHoldThrottle(&_mAltSonarPID, ATT_LOOP_SEC);
                 } else {
                     thrust = rc->throttle.getInput();
                 }
@@ -250,12 +257,16 @@ namespace pegasus
                 mix.write(p.calRcThrottle.min);
             }
 
+			#ifdef HIGH_SPEED_ATT
+            if (_mCounter % 4 == 0) {
+			#else
             if (_mCounter % 2 == 0) { // 100Hz task
+			#endif
                 task100Hz();
             }
 
             _mCounter++;
-
+            sv.endAttitudeLoop(_mTimer);
         }
 
         /**
@@ -307,6 +318,8 @@ namespace pegasus
 
         void Engine::task100Hz()
         {
+        	/* Check rc signal */
+        	rc->check();
 
             /* Calculate baro */
             if (is(ENGINE_STATUS_BARO_OK)) {

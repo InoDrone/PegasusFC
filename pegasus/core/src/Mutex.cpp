@@ -34,7 +34,7 @@ namespace pegasus
 
         void Mutex::enter(uint8_t mutexId)
         {
-            Thread *thread = threadManager.getCurrent();
+            //Thread *thread = threadManager.getCurrent();
 
             if (!threadManager.isStarted()) return;
 
@@ -42,7 +42,7 @@ namespace pegasus
                 /* Waiting to mutex released */
                 while (mutexLocked[mutexId]);
 
-                return;
+                /*return;*/
             }
 
             mutexLocked[mutexId] = true;

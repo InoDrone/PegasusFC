@@ -64,7 +64,7 @@ namespace pegasus {
 
             private:
                 pegasus::hal::PWMInput* _mIn;
-                uint32_t _mRadioIn;
+                uint16_t _mRadioIn;
                 uint32_t _mLastUpdate;
 
                 uint16_t _mRadioMin;

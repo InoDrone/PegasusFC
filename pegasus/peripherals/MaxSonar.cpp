@@ -25,8 +25,8 @@ namespace pegasus {
     namespace peripherals {
 
         MaxSonar::MaxSonar(pegasus::hal::PWMInput* pwmIn) :
-                _mDistance(20.0f),
-                _mPwmIn(pwmIn)
+                _mPwmIn(pwmIn),
+                _mDistance(20.0f)
         {
 
         }
@@ -45,6 +45,7 @@ namespace pegasus {
 
             if (abs(ndist - _mDistance) < SPIKE_FILTER) {
                 _mDistance = ndist;
+                CALLSV(pegasus::fc::service::SONAR_UPDATED);
             }
         }
 

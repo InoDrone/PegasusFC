@@ -84,6 +84,10 @@ namespace pegasus {
                     void setMod(uint8_t channel, timer::Mode mode);
                     void setValue(uint16_t channel, uint16_t value);
                     uint8_t getUniqId();
+
+                    uint32_t getCounter() {
+                    	return _mReg->CNT;
+                    }
             };
 
             INLINE void Timer::enable()

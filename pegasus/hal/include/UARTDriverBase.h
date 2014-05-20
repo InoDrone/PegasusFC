@@ -34,6 +34,8 @@ namespace pegasus {
                     _mConfig(config),
                     _mStarted(false) {}
 
+                virtual void setBaudRate(uint32_t bauds) = 0;
+
             protected:
                 UartReg_t* _mReg;
                 UartConfig_t _mConfig;

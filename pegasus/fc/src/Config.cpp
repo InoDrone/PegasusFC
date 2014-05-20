@@ -41,4 +41,6 @@ uint16_t loadDefaultConfig(Config_t* p)
     p->altSonarPID.kP = DFLT_ALT_SONAR_P;
     p->altSonarPID.kI = DFLT_ALT_SONAR_I;
     p->altSonarPID.kD = DFLT_ALT_SONAR_D;
+
+    return DFLT_CONFIG_VERSION;
 }

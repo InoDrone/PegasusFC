@@ -127,6 +127,17 @@ namespace pegasus
             return true;
         }
 
+        void  Supervisor::beginAttitudeLoop(pegasus::hal::TimerBase_t* timer)
+        {
+        	attitudeCalculatorStart = timer->getCounter(); //Use Timer FC instead CoreTimer (is in interrupt)
+        }
+
+        void  Supervisor::endAttitudeLoop(pegasus::hal::TimerBase_t* timer)
+        {
+        	attitudeLoopTime = (uint16_t)(timer->getCounter()-attitudeCalculatorStart);
+
+        }
+
         Supervisor sv;
 
     } /* namespace core */

@@ -86,13 +86,15 @@ namespace pegasus {
                             uint8_t streamNum;
                             DMA_Stream_TypeDef* stream;
                             uint32_t channel;
+                            uint8_t DMAx;
+                            uint8_t dmaNVIC;
                     };
 
-                    static UARTDriver* dmaPtr[2][7];
+                    static UARTDriver* dmaPtr[2][8];
                     void dmaInterrupt();
+                    void setBaudRate(uint32_t bauds);
 
                 private:
-                    void setBaudRate();
                     void enableDMA();
                     void startTxDMA();
                     void print(const char *str);

@@ -18,6 +18,7 @@
 
 #include "Telemetry.h"
 #include "fc/include/Engine.h"
+#include "fc/include/Supervisor.h"
 #include "core/include/Trace.h"
 #include "core/include/CriticalSection.h"
 #include "UAVLink.h"
@@ -47,21 +48,34 @@ void Telemetry::run()
 
         counter++;
 
+
         /* if com not active disable telemetry */
         if (!com.isActive()) {
             continue;
         }
 
         addAttitude(&status);
+
+        /* GPS */
+        status.gps.iTOW = gpsDatas.iTOW;
+        status.gps.lat = gpsDatas.lat;
+        status.gps.lon = gpsDatas.lon;
+        status.gps.height = gpsDatas.height;
+        status.gps.vAcc = gpsDatas.vAcc;
+        status.gps.hAcc = gpsDatas.hAcc;
+        status.gps.sats = gpsDatas.sats;
+        status.gps.fixType = gpsDatas.fixType;
+        // TODO : use memcpy
+
         status.rc.throttle = e->rc->throttle.getInput();
         status.rc.roll = e->rc->roll.getInput();
         status.rc.pitch = e->rc->pitch.getInput();
         status.rc.yaw = e->rc->yaw.getInput();
 
-        status.altSonar = e->sonar->getDistance();
-        status.altBaro = e->baro->getAltitude();
         status.frameType = p.frameType;
         status.version = p.version;
+        status.fcLoopTimeUS = sv.getAttitudeLoopTime();
+        status.fcLoopReloadTimeUS = (uint16_t)(ATT_LOOP_SEC * 1000000);
 
         {
             pegasus::core::CriticalSection cs;
@@ -103,6 +117,9 @@ void Telemetry::addAttitude(uavlink_message_status_t * status)
     status->angle.roll = (int16_t)(RAD2DEG(att.euler.roll) * 100.0f);
     status->angle.pitch = (int16_t)(RAD2DEG(att.euler.pitch) * 100.0f);
     status->angle.yaw = (int16_t)(RAD2DEG(att.euler.yaw) * 100.0f);
+
+    status->altSonar = att.sonar;
+    status->altBaro = att.altitude;
 }
 
 Telemetry telemetry;

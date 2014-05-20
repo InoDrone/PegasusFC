@@ -36,6 +36,9 @@ namespace pegasus
                 void gyroAccSum();
                 void update();
 
+                void baroUpdated();
+                void sonarUpdated();
+
                 const Attitude_t &getAttitude() const;
 
                 void svc(pegasus::fc::service::Service id);

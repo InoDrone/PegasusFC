@@ -33,6 +33,8 @@ namespace pegasus {
                 void setConfig(uavlink_pid rate);
                 float calculate(float target, float current, float G_Dt);
 
+                void reset();
+
             private:
 
                 struct PIDConfig {

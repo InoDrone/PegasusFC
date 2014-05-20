@@ -20,7 +20,6 @@
 #include "hal/stm32f4/include/USBSerial.h"
 #include "hal/stm32f4/include/Processor.h"
 #include "core/include/MainTimer.h"
-#include "usb_dcd_int.h"
 
 namespace pegasus
 {

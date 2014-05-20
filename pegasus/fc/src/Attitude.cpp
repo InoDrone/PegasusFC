@@ -40,6 +40,8 @@ namespace pegasus
             accSum  = {0, 0.0f, 0.0f, 0.0f};
 
             pegasus::hal::InterruptRegister::registerService(this, pegasus::fc::service::DRDY_ACCGYRO);
+            pegasus::hal::InterruptRegister::registerService(this, pegasus::fc::service::BARO_UPDATED);
+            pegasus::hal::InterruptRegister::registerService(this, pegasus::fc::service::SONAR_UPDATED);
             //register service DRDY_MAG
             //register service SONAR_UPDATE
         }
@@ -64,6 +66,24 @@ namespace pegasus
         }
 
         /**
+         * Handled by call Service BARO_UPDATED
+         */
+        void Attitude::baroUpdated()
+        {
+        	att.pressure = e->baro->getPressure();
+        	att.temperature = e->baro->getTemp();
+        	att.altitude = e->baro->getAltitude();
+        }
+
+        /**
+         * Handled by call Service SONAR_UPDATED
+         */
+        void Attitude::sonarUpdated()
+        {
+        	att.sonar = e->sonar->getDistance();
+        }
+
+        /**
          * Handled by Engine timer update at 200hz
          * MPU6000 DRDY at 1Khz (5 values per call)
          */
@@ -72,19 +92,19 @@ namespace pegasus
 
             if (gyroSum.count == 0 || accSum.count == 0) return;
 
-            att.gyro.x = (float)((float)gyroSum.x / (float)gyroSum.count);
-            att.gyro.y = (float)((float)gyroSum.y / (float)gyroSum.count);
+            att.gyro.x = -(float)((float)gyroSum.x / (float)gyroSum.count);
+            att.gyro.y = -(float)((float)gyroSum.y / (float)gyroSum.count);
             att.gyro.z = (float)((float)gyroSum.z / (float)gyroSum.count);
 
-            att.acc.x = (float)((float)accSum.x / (float)accSum.count);
-            att.acc.y = (float)((float)accSum.y / (float)accSum.count);
+            att.acc.x = -(float)((float)accSum.x / (float)accSum.count);
+            att.acc.y = -(float)((float)accSum.y / (float)accSum.count);
             att.acc.z = (float)((float)accSum.z / (float)accSum.count);
 
             gyroSum = {0,0,0,0};
             accSum = {0,0,0,0};
 
             // Compute DCM
-            dcm.update(&att, 0.005f); // G_DT 5ms
+            dcm.update(&att, ATT_LOOP_SEC); // G_DT 5ms
         }
 
         const Attitude_t &Attitude::getAttitude() const
@@ -100,6 +120,12 @@ namespace pegasus
                 case pegasus::fc::service::DRDY_ACCGYRO:
                     gyroAccSum();
                     break;
+                case pegasus::fc::service::BARO_UPDATED:
+                	baroUpdated();
+                	break;
+                case pegasus::fc::service::SONAR_UPDATED:
+                	sonarUpdated();
+                	break;
                 default:
                     break;
             }

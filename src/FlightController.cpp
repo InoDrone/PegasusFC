@@ -29,6 +29,7 @@ void FlightController::run()
 {
     uint32_t counter = 0;
     uint32_t stickCounter = 0;
+    uint16_t disarmCounter = 0;
     _pFunc = &FlightController::waitingMode;
 
 
@@ -49,17 +50,22 @@ void FlightController::run()
                 }
 
                 stickCounter++;
+        } else {
+            stickCounter = 0;
         }
-        /* if (rc.throttle == MIN_THROTTLE) {
-            if (rc.pitch == MIN_PITCH_CMD && rc.yaw == MIN_YAW_CMD && counter >= 60) { // for 3 second
-                counter = 0;
-                if (!engine.is(ENGINE_ARMED)) {
-                    engine.status |= ENGINE_ARMED;
-                    _pFunc = &FlightController::flightMode;
-                }
-            } else if (rc.pitch
 
-           }*/
+        /**
+         * Disarm if throttle < ESC_IDLE after armed System
+         */
+        if (engine.rc->throttle.getInput() < p.escIDLE && sv.isArmed()) {
+        	if (disarmCounter >= 40 /* 2 sec */) {
+                sv.setArmed(false);
+                disarmCounter = 0;
+        	}
+        	disarmCounter++;
+        } else {
+            disarmCounter = 0;
+        }
 
         if (sv.isArmed()) {
             _pFunc = &FlightController::flightMode;

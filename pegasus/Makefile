@@ -75,15 +75,15 @@ USBSRCS = $(LIB_DIR)/STM32_USB_Device_Library/Core/src/usbd_core.c \
 USBBJS := $(subst $(LIB_DIR), $(BUILDROOT)/lib,$(USBSRCS))
 USBBJS := $(addsuffix .o,$(basename $(USBBJS)))
 
-SRCS = ${PEGASUSSRCS} $(USBSRCS) ${PEGASUSHALSRCS} ${PEGASUSFCSRCS} $(PEGASUSPERISRCS)
-OBJS = ${PEGASUSOBJS} $(USBBJS) ${PEGASUSHALOBJS} ${PEGASUSFCOBJS} $(PEGASUSPERIOBJS)
+SRCS = ${PEGASUSSRCS} ${PEGASUSHALSRCS} ${PEGASUSFCSRCS} $(PEGASUSPERISRCS)
+OBJS = ${PEGASUSOBJS} ${PEGASUSHALOBJS} ${PEGASUSFCOBJS} $(PEGASUSPERIOBJS)
 
 
 
-INCLUDES += $(LIB_DIR)/STM32_USB_VCP/inc
-INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Class/cdc/inc
-INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Core/inc
-INCLUDES += $(LIB_DIR)/STM32_USB_OTG_Driver/inc
+#INCLUDES += $(LIB_DIR)/STM32_USB_VCP/inc
+#INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Class/cdc/inc
+#INCLUDES += $(LIB_DIR)/STM32_USB_Device_Library/Core/inc
+#INCLUDES += $(LIB_DIR)/STM32_USB_OTG_Driver/inc
 INCLUDES += $(STM_DIR)/lib
 INCLUDES += $(STM_DIR)/lib/inc
 INCLUDES += $(STM_DIR)/lib/inc/core
@@ -94,7 +94,7 @@ INCLUDES  := $(addprefix -I,$(INCLUDES))
 
 CFLAGS  = -g -Os -Wall -DPEGASUS_STM32 -DUSE_STDPERIPH_DRIVER  -DHSE_VALUE=8000000 -DSTM32F40_41xxx
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4
-CFLAGS += -fsingle-precision-constant -Wdouble-promotion
+CFLAGS += -fsingle-precision-constant
 CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS += -ffreestanding 
 #-nostdlib
